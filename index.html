@@ -1979,10 +1979,13 @@ var MEAL_IMAGES = {
   }
 
   let records = cleanRecords(store.get(GROW_KEY, null));
-  /* 기본 기록은 기기마다 한 번만 채워 넣고, 지운 기록은 다시 살리지 않습니다. */
-  if(store.get(GROW_SEED_FLAG, null) !== "v3"){
+  /* 기본 기록은 기기마다 한 번만 채워 넣고, 지운 기록은 다시 살리지 않습니다.
+     클라우드 값을 받은 뒤에도 한 번 더 맞춰 보므로(mergeGrowthSeed) 새 기본 기록이 지워지지 않습니다. */
+  function mergeGrowthSeed(){
+    if(store.get(GROW_SEED_FLAG, null) === "v3") return false;
     const seeded = {};
     records.forEach(r => { seeded[r.date] = 1; });
+    let added = 0;
     GROW_SEED.forEach(s => {
       if(seeded[s.date]) return;
       records.push({
@@ -1991,11 +1994,12 @@ var MEAL_IMAGES = {
         height: (s.height === undefined ? null : s.height),
         weight: (s.weight === undefined ? null : s.weight)
       });
+      added++;
     });
-    records.sort(cmpDate);
-    store.set(GROW_KEY, records);
-    store.set(GROW_SEED_FLAG, "v3");
+    if(added) records.sort(cmpDate);
+    return added > 0;
   }
+  if(mergeGrowthSeed()) store.set(GROW_KEY, records);
 
   /* ── 또래 평균: 질병관리청 2017 소아청소년 성장도표 · 여아 50백분위수 ──
      유하 생년월일(2022-07-15)로 월령을 계산해 두 점 사이를 선형 보간합니다. */
@@ -3512,6 +3516,10 @@ var MEAL_IMAGES = {
       sync.applying = true;
       try{ s.write(v); }catch(e){}
       sync.applying = false;
+      if(s.key === "growth" && mergeGrowthSeed()){
+        store.set(GROW_KEY, records);
+        sync.dirty.growth = 1;      // 새로 붙인 기본 기록은 클라우드에도 올립니다
+      }
       changed.push(s.key);
     });
     if(changed.length){
@@ -3559,8 +3567,8 @@ var MEAL_IMAGES = {
         .map(s => s.key);
       if(missing.length){
         missing.forEach(k => { sync.dirty[k] = 1; });
-        syncFlush();
       }
+      if(Object.keys(sync.dirty).length) syncFlush();
       syncSet("on");
       return true;
     }).catch(() => { syncSet("off"); return false; });
@@ -3658,7 +3666,11 @@ var MEAL_IMAGES = {
     syncWriter = key => syncMark(key);
     syncPaint();
     syncWire();
-    sync.ready = syncBoot().then(ok => { syncStream(); return ok; });
+    sync.ready = syncBoot().then(ok => {
+      store.set(GROW_SEED_FLAG, "v3");   // 기본 기록 맞추기는 기기마다 한 번만
+      syncStream();
+      return ok;
+    });
     try{
       if(typeof window !== "undefined"){
         window.yuhaneSync = {
