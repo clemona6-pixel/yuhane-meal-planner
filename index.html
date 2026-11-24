@@ -387,14 +387,6 @@ var KINDY_MENU_DATA = {
   .subpane{display:none}
   .subpane.active{display:block;animation:fade .2s ease}
   .split{height:1px;background:var(--line);margin:26px 2px 22px}
-  .week-link{
-    width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;
-    font-family:inherit;font-size:12.5px;font-weight:600;color:var(--accent-deep);
-    background:var(--pink-100);border:1px solid #FBEAEE;border-radius:14px;
-    padding:13px 15px;margin-top:16px;cursor:pointer;text-align:left;
-  }
-  .week-link .ico{width:14px;height:14px;flex:none;color:var(--accent)}
-  .week-link:active{background:var(--pink-200)}
 
   /* ── 주간 식단 ─────────────────────────── */
   .meal-card{
@@ -976,27 +968,6 @@ var KINDY_MENU_DATA = {
 
   <!-- 달력 (첫 화면 · 유하네 메인) -->
   <section class="view active" id="view-cal">
-    <div class="acad-card">
-      <div class="acad-bar">
-        <span class="acad-title"><svg class="ico"><use href="#i-sparkle"/></svg>유하 학원</span>
-        <div class="acad-chips" id="acadList"></div>
-        <button class="acad-add" id="acadAdd" type="button" aria-label="학원 추가" title="학원 추가">+</button>
-      </div>
-      <form class="acad-form" id="acadForm" hidden>
-        <select class="acad-select" id="acadDow" aria-label="요일">
-          <option value="1">월</option>
-          <option value="2">화</option>
-          <option value="3">수</option>
-          <option value="4">목</option>
-          <option value="5">금</option>
-          <option value="6">토</option>
-          <option value="0">일</option>
-        </select>
-        <input class="memo-input" id="acadInput" type="text" maxlength="30" placeholder="예: 태권도학원">
-        <button class="btn-primary small" type="submit">추가</button>
-      </form>
-    </div>
-
     <div class="cal-card">
       <div class="cal-bar">
         <button class="cal-nav-btn" id="calPrev" type="button" aria-label="이전 달"><svg class="ico flip"><use href="#i-chevron"/></svg></button>
@@ -1018,6 +989,27 @@ var KINDY_MENU_DATA = {
 
     <p class="hint"><svg class="ico"><use href="#i-calendar"/></svg>날짜를 누르면 그날 일정이 아래에 보여요</p>
 
+    <div class="acad-card">
+      <div class="acad-bar">
+        <span class="acad-title"><svg class="ico"><use href="#i-sparkle"/></svg>유하 학원</span>
+        <div class="acad-chips" id="acadList"></div>
+        <button class="acad-add" id="acadAdd" type="button" aria-label="학원 추가" title="학원 추가">+</button>
+      </div>
+      <form class="acad-form" id="acadForm" hidden>
+        <select class="acad-select" id="acadDow" aria-label="요일">
+          <option value="1">월</option>
+          <option value="2">화</option>
+          <option value="3">수</option>
+          <option value="4">목</option>
+          <option value="5">금</option>
+          <option value="6">토</option>
+          <option value="0">일</option>
+        </select>
+        <input class="memo-input" id="acadInput" type="text" maxlength="30" placeholder="예: 태권도학원">
+        <button class="btn-primary small" type="submit">추가</button>
+      </form>
+    </div>
+
     <div class="kid-card">
       <div class="kid-head">
         <h3><svg class="ico"><use href="#i-check"/></svg>유치원 챙길 것<span class="kid-count" id="kidCount">0/5</span></h3>
@@ -1029,11 +1021,6 @@ var KINDY_MENU_DATA = {
         <button class="btn-primary small" type="submit">추가</button>
       </form>
     </div>
-
-    <button class="week-link" id="goMeal" type="button">
-      <span class="wl-txt">이번 주 식단 · 장보기 보기</span>
-      <svg class="ico"><use href="#i-chevron"/></svg>
-    </button>
   </section>
 
   <!-- 식단 · 장보기 (한 페이지) -->
@@ -3244,9 +3231,6 @@ var MEAL_IMAGES = {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
   $$(".tab").forEach(t => t.addEventListener("click", () => setView(t.getAttribute("data-view"))));
-
-  const goMeal = $("#goMeal");
-  if(goMeal) goMeal.addEventListener("click", () => setView("meal"));
 
   function jumpTo(id){
     const el = document.getElementById(id);
