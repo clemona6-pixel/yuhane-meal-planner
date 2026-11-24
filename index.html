@@ -976,18 +976,6 @@ var KINDY_MENU_DATA = {
 
   <!-- 달력 (첫 화면 · 유하네 메인) -->
   <section class="view active" id="view-cal">
-    <div class="kid-card">
-      <div class="kid-head">
-        <h3><svg class="ico"><use href="#i-check"/></svg>유치원 챙길 것<span class="kid-count" id="kidCount">0/5</span></h3>
-        <button class="kid-add" id="kidAdd" type="button">+ 추가</button>
-      </div>
-      <div id="kidList"></div>
-      <form class="kid-form" id="kidForm" hidden>
-        <input class="memo-input" id="kidInput" type="text" maxlength="60" placeholder="예: 우유팩 챙겨 가기">
-        <button class="btn-primary small" type="submit">추가</button>
-      </form>
-    </div>
-
     <div class="acad-card">
       <div class="acad-bar">
         <span class="acad-title"><svg class="ico"><use href="#i-sparkle"/></svg>유하 학원</span>
@@ -1029,6 +1017,19 @@ var KINDY_MENU_DATA = {
     </div>
 
     <p class="hint"><svg class="ico"><use href="#i-calendar"/></svg>날짜를 누르면 그날 일정이 아래에 보여요</p>
+
+    <div class="kid-card">
+      <div class="kid-head">
+        <h3><svg class="ico"><use href="#i-check"/></svg>유치원 챙길 것<span class="kid-count" id="kidCount">0/5</span></h3>
+        <button class="kid-add" id="kidAdd" type="button">+ 추가</button>
+      </div>
+      <div id="kidList"></div>
+      <form class="kid-form" id="kidForm" hidden>
+        <input class="memo-input" id="kidInput" type="text" maxlength="60" placeholder="예: 우유팩 챙겨 가기">
+        <button class="btn-primary small" type="submit">추가</button>
+      </form>
+    </div>
+
     <button class="week-link" id="goMeal" type="button">
       <span class="wl-txt">이번 주 식단 · 장보기 보기</span>
       <svg class="ico"><use href="#i-chevron"/></svg>
