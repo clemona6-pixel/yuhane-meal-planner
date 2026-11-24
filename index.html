@@ -2563,12 +2563,12 @@ var MEAL_IMAGES = {
       <div class="stat-card">
         <div class="st">지난 기록 대비</div>
         <div class="sv">${dh === null ? "—" : signed(dh, "cm")}</div>
-        <div class="sd">${dw === null ? (lastW ? "몸무게 기록 2개부터 비교돼요" : "키 기록 2개부터 비교돼요") : "몸무게 " + signed(dw, "kg")}</div>
+        <div class="sd">${dw === null ? (lastW ? "몸무게 기록 2개부터 비교돼요" : "몸무게 기록이 없어요") : "몸무게 " + signed(dw, "kg")}</div>
       </div>
       <div class="stat-card">
         <div class="st">처음 기록 대비</div>
         <div class="sv">${th === null ? "—" : signed(th, "cm")}</div>
-        <div class="sd">${tw === null ? (lastW ? "몸무게 기록 2개부터 비교돼요" : "첫 키 기록부터 자라고 있어요") : "몸무게 " + signed(tw, "kg")}</div>
+        <div class="sd">${tw === null ? (lastW ? "몸무게 기록 2개부터 비교돼요" : "몸무게 기록이 없어요") : "몸무게 " + signed(tw, "kg")}</div>
       </div>
       <div class="stat-card peer">
         <div class="st">또래 평균 키<span class="tag">${hM !== null ? hM + "개월" : ""}</span></div>
@@ -2717,7 +2717,7 @@ var MEAL_IMAGES = {
       const ph = peerHeight(r.date);
       const hg = ph === null ? null : r1(r.height - ph);
       let delta = bits.length ? bits.join(" · ") : "첫 기록";
-      if(hg !== null) delta += (bits.length ? " · " : "") + "또래 평균 " + signed(hg, "cm");
+      if(hg !== null) delta += " · 또래 평균 " + signed(hg, "cm");
       return `
         <div class="rec-item">
           <div class="rec-date">${md(r.date)}<small>${r.date.slice(0, 4)}</small></div>
