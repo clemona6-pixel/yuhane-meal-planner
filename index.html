@@ -2732,7 +2732,7 @@ var MEAL_IMAGES = {
       const bits = [];
       if(r.height !== null && prevH) bits.push("지난 기록보다 " + signed(r.height - prevH.height, "cm"));
       if(r.weight !== null && prevW) bits.push(signed(r.weight - prevW.weight, "kg"));
-      let delta = bits.length ? bits.join(" · ") : "첫 기록";
+      let delta = bits.length ? bits.join(" · ") : (r.height === null ? "첫 몸무게 기록" : "첫 기록");
       if(r.height !== null){
         const ph = peerHeight(r.date);
         if(ph !== null) delta += " · 또래 평균 " + signed(r1(r.height - ph), "cm");
