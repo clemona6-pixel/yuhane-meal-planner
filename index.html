@@ -2939,7 +2939,7 @@ var MEAL_IMAGES = {
       ? `<div class="kg-block"><div class="lb">열량 · 단백질</div><p class="kg-kcal">${d.kcal ? d.kcal + "kcal" : ""}${d.kcal && d.protein ? " · " : ""}${d.protein ? "단백질 " + d.protein + "g" : ""}</p></div>`
       : "";
     $("#kgBlocks").innerHTML = blocks + kcal;
-    $("#kgSheetSource").textContent = [KG.school || "", KG.source || "키즈노트 알림장", KG.dietitian || "", "기준"].filter(Boolean).join(" · ");
+    $("#kgSheetSource").textContent = [KG.school || "", KG.source || "키즈노트 알림장", KG.dietitian || ""].filter(Boolean).join(" · ") + " 기준";
     kgModal.classList.add("open");
     document.body.style.overflow = "hidden";
   }
