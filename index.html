@@ -322,14 +322,6 @@ var KINDY_MENU_DATA = {
   .hero h1.logo{margin:0;font-size:21px;font-weight:700;letter-spacing:.14em;color:#5E4A50;line-height:1.1}
   .hero h1.logo .logo-dot{color:#D98FA1;letter-spacing:0}
   .hero .sub{margin:5px 0 0;font-size:10.5px;color:#B2959D;letter-spacing:.02em}
-  .sync-badge{display:inline-flex;align-items:center;gap:4px;margin:4px 0 0;font-size:9.3px;line-height:1;color:#C0A9AF;letter-spacing:.01em}
-  .sync-dot{width:5px;height:5px;border-radius:50%;background:#DCC7CC;flex:none}
-  .sync-badge[data-state="on"]{color:#87A99B}
-  .sync-badge[data-state="on"] .sync-dot{background:#7FB6A4;box-shadow:0 0 0 2px rgba(127,182,164,.16)}
-  .sync-badge[data-state="off"]{color:#C29B8E}
-  .sync-badge[data-state="off"] .sync-dot{background:#DFA895}
-  .sync-badge[data-state="wait"] .sync-dot{animation:syncPulse 1.3s ease-in-out infinite}
-  @keyframes syncPulse{0%,100%{opacity:.3}50%{opacity:1}}
   .dp-meta{margin-top:3px;font-size:10.8px;color:var(--ink-3);line-height:1.45}
   .week-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 2px 9px;font-size:10.9px;color:#A98F97;line-height:1.5}
   .week-meta .sp{color:#DCBCC5}
@@ -961,7 +953,6 @@ var KINDY_MENU_DATA = {
       <div class="hero-brand">
         <h1 class="logo">YUHA<span class="logo-dot">.</span><span class="sr-only" id="heroTitle">유하네</span></h1>
         <p class="sub" id="heroSub">우리 가족의 한 주</p>
-        <p class="sync-badge" id="syncState" data-state="wait" aria-live="polite"><span class="sync-dot" aria-hidden="true"></span><span id="syncText">동기화 연결 중</span></p>
       </div>
       <div class="hero-actions">
         <button class="hero-btn" id="openShare" type="button" aria-label="공유하기" title="공유하기"><svg class="ico"><use href="#i-share"/></svg></button>
