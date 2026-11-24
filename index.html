@@ -322,6 +322,14 @@ var KINDY_MENU_DATA = {
   .hero h1.logo{margin:0;font-size:21px;font-weight:700;letter-spacing:.14em;color:#5E4A50;line-height:1.1}
   .hero h1.logo .logo-dot{color:#D98FA1;letter-spacing:0}
   .hero .sub{margin:5px 0 0;font-size:10.5px;color:#B2959D;letter-spacing:.02em}
+  .sync-badge{display:inline-flex;align-items:center;gap:4px;margin:4px 0 0;font-size:9.3px;line-height:1;color:#C0A9AF;letter-spacing:.01em}
+  .sync-dot{width:5px;height:5px;border-radius:50%;background:#DCC7CC;flex:none}
+  .sync-badge[data-state="on"]{color:#87A99B}
+  .sync-badge[data-state="on"] .sync-dot{background:#7FB6A4;box-shadow:0 0 0 2px rgba(127,182,164,.16)}
+  .sync-badge[data-state="off"]{color:#C29B8E}
+  .sync-badge[data-state="off"] .sync-dot{background:#DFA895}
+  .sync-badge[data-state="wait"] .sync-dot{animation:syncPulse 1.3s ease-in-out infinite}
+  @keyframes syncPulse{0%,100%{opacity:.3}50%{opacity:1}}
   .dp-meta{margin-top:3px;font-size:10.8px;color:var(--ink-3);line-height:1.45}
   .week-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 2px 9px;font-size:10.9px;color:#A98F97;line-height:1.5}
   .week-meta .sp{color:#DCBCC5}
@@ -691,18 +699,24 @@ var KINDY_MENU_DATA = {
   .stat-card .sv em{font-style:normal;font-size:10.5px;font-weight:500;color:var(--ink-3);margin-left:2px}
   .stat-card .sd{margin-top:3px;font-size:9.8px;color:#B7A6AB;line-height:1.4}
   .stat-card.hi .sv{color:var(--accent-deep)}
+  .stat-card.peer{background:linear-gradient(180deg,#FDFAFC 0%,#FFFFFF 100%);border-color:#F0E7F0}
+  .stat-card.peer .sv{color:#8A7396}
+  .stat-card .st .tag{margin-left:auto;font-size:8.8px;font-weight:500;color:#B7A6AB;letter-spacing:0}
   .chart-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 12px 12px;margin-top:12px}
   .chart-head{display:flex;align-items:baseline;justify-content:space-between;gap:6px;padding:0 4px}
   .chart-head h3{margin:0;font-size:12.5px;font-weight:600}
   .chart-head .unit{font-size:9.5px;color:var(--ink-3);text-align:right;line-height:1.4}
   .chart-wrap{margin-top:6px}
   .chart-wrap svg{display:block;width:100%;height:auto}
-  .legend{display:flex;gap:12px;flex-wrap:wrap;padding:6px 6px 0}
+  .legend{display:flex;gap:10px;flex-wrap:wrap;padding:6px 6px 0}
   .legend span{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--ink-3)}
   .legend i{width:7px;height:7px;border-radius:50%;display:inline-block;flex:none}
   .legend i.h{background:var(--accent)}
   .legend i.w{background:var(--mint)}
   .legend i.dash{width:13px;height:0;border-radius:0;border-top:1.5px dashed var(--pink-200)}
+  .legend i.ah{width:13px;height:0;border-radius:0;border-top:1.5px dashed #C6B4D6}
+  .legend i.aw{width:13px;height:0;border-radius:0;border-top:1.5px dashed #B7D3C9}
+  .legend-note{margin:7px 6px 0;font-size:9.4px;line-height:1.5;color:#BFADB3;word-break:keep-all}
   .form-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 15px 15px;margin-top:12px}
   .form-card h3{margin:0;font-size:12.5px;font-weight:600;display:flex;align-items:center;gap:6px}
   .form-card h3 .ico{width:14px;height:14px;color:var(--accent)}
@@ -947,6 +961,7 @@ var KINDY_MENU_DATA = {
       <div class="hero-brand">
         <h1 class="logo">YUHA<span class="logo-dot">.</span><span class="sr-only" id="heroTitle">유하네</span></h1>
         <p class="sub" id="heroSub">우리 가족의 한 주</p>
+        <p class="sync-badge" id="syncState" data-state="wait" aria-live="polite"><span class="sync-dot" aria-hidden="true"></span><span id="syncText">동기화 연결 중</span></p>
       </div>
       <div class="hero-actions">
         <button class="hero-btn" id="openShare" type="button" aria-label="공유하기" title="공유하기"><svg class="ico"><use href="#i-share"/></svg></button>
@@ -1083,7 +1098,7 @@ var KINDY_MENU_DATA = {
       <div class="shop-actions">
         <button class="btn-secondary" id="resetBtn" type="button"><svg class="ico"><use href="#i-reset"/></svg>체크 초기화</button>
       </div>
-      <p class="foot-note">체크 상태는 이 기기에만 저장돼요.<br>다음 주 식단도 말씀 주시면 새로 올려드릴게요.</p>
+      <p class="foot-note">체크 상태는 가족과 실시간으로 함께 저장돼요.<br>다음 주 식단도 말씀 주시면 새로 올려드릴게요.</p>
     </div>
     </div>
 
@@ -1123,14 +1138,16 @@ var KINDY_MENU_DATA = {
       </div>
       <div class="chart-wrap"><svg id="growthChart" role="img" aria-label="유하 키와 몸무게 변화 그래프"></svg></div>
       <div class="legend">
-        <span><i class="h"></i>키(cm)</span>
-        <span><i class="w"></i>몸무게(kg)</span>
-        <span><i class="dash"></i>또래 평균 110cm · 18kg</span>
+        <span><i class="h"></i>유하 키</span>
+        <span><i class="w"></i>유하 몸무게</span>
+        <span><i class="ah"></i>또래 평균 키</span>
+        <span><i class="aw"></i>또래 평균 몸무게</span>
       </div>
+      <p class="legend-note">또래 평균은 질병관리청 2017 소아청소년 성장도표 여아 50백분위수예요. 점선보다 높으면 같은 개월 또래보다 큰 편이에요.</p>
     </div>
     <form class="form-card" id="growthForm" novalidate>
       <h3><svg class="ico"><use href="#i-plus"/></svg>오늘 기록 남기기</h3>
-      <p class="fsub">키와 몸무게를 함께 적어 두면 변화가 한눈에 보여요.</p>
+      <p class="fsub">키만 적어도 저장돼요. 몸무게는 나중에 채워도 괜찮아요.</p>
       <div class="form-row">
         <div class="field"><label for="gDate">날짜</label><input type="date" id="gDate"></div>
       </div>
@@ -1145,7 +1162,7 @@ var KINDY_MENU_DATA = {
       <div class="rec-head"><span>기록 목록</span><span class="n" id="recCount"></span></div>
       <div id="recList"></div>
     </div>
-    <p class="foot-note">기록은 이 기기에만 저장되고, 공유 코드로 다른 폰에 옮길 수 있어요.</p>
+    <p class="foot-note">기록은 가족과 실시간으로 함께 저장되고, 공유 코드로 다른 폰에 옮길 수도 있어요.</p>
   </section>
 </div>
 
@@ -1305,6 +1322,9 @@ var MEAL_IMAGES = {
   const $$ = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
   const esc = s => String(s).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 
+  /* 실시간 동기화가 준비되면 store.set이 바뀐 섹션을 알려 줍니다 */
+  let syncWriter = null;
+
   const store = {
     get(key, fallback){
       try{
@@ -1314,8 +1334,11 @@ var MEAL_IMAGES = {
       }catch(e){ return fallback; }
     },
     set(key, val){
-      try{ localStorage.setItem(key, JSON.stringify(val)); return true; }
-      catch(e){ return false; }
+      let ok = false;
+      try{ localStorage.setItem(key, JSON.stringify(val)); ok = true; }
+      catch(e){ ok = false; }
+      if(syncWriter){ try{ syncWriter(key); }catch(e){} }
+      return ok;
     }
   };
 
@@ -1541,13 +1564,9 @@ var MEAL_IMAGES = {
     "선택형 심화영어 숙제 화일에 넣어 보내기"
   ];
   let kidItems = store.get(KID_KEY, null);
-  if(!Array.isArray(kidItems)){
-    kidItems = KID_SEED.map((t, i) => ({ id: "k" + i, text: t, done: false }));
-  }else{
-    kidItems = kidItems
-      .filter(k => k && typeof k.text === "string" && k.text && KID_DROP.indexOf(String(k.text).trim()) === -1)
-      .map((k, i) => ({ id: k.id ? String(k.id) : ("k" + i), text: String(k.text).slice(0, 60), done: !!k.done }));
-  }
+  kidItems = Array.isArray(kidItems)
+    ? cleanKids(kidItems)
+    : KID_SEED.map((t, i) => ({ id: "k" + i, text: t, done: false }));
   const saveKids = () => store.set(KID_KEY, kidItems);
 
   /* ── 실속 장보기: 한 주 5끼를 '재료를 나눠 쓰는' 조합으로 ──────────
@@ -1783,17 +1802,9 @@ var MEAL_IMAGES = {
   ];
   const ACAD_RENAME = { "발레학원": "발레", "노블어학원": "노블" };
   let acadItems = store.get(ACAD_KEY, null);
-  if(!Array.isArray(acadItems)){
-    acadItems = ACAD_SEED.map(a => ({ id: a.id, dow: a.dow, name: a.name }));
-  }else{
-    acadItems = acadItems
-      .filter(a => a && typeof a.name === "string" && a.name.trim())
-      .map((a, i) => ({
-        id: a.id ? String(a.id) : ("a" + i),
-        dow: Math.min(6, Math.max(0, Math.round(+a.dow) || 0)),
-        name: ACAD_RENAME[String(a.name).trim()] || String(a.name).trim().slice(0, 30)
-      }));
-  }
+  acadItems = Array.isArray(acadItems)
+    ? cleanAcad(acadItems)
+    : ACAD_SEED.map(a => ({ id: a.id, dow: a.dow, name: a.name }));
   const saveAcad = () => store.set(ACAD_KEY, acadItems);
   function renderAcad(){
     const today = new Date().getDay();
@@ -1848,7 +1859,12 @@ var MEAL_IMAGES = {
   if(!memos || typeof memos !== "object" || Array.isArray(memos)) memos = {};
 
   const DEFAULT_ENTRIES = [
+    { id: "d-fam-1106", date: "2026-11-06", cat: "family", icon: "🐾", text: "유하 미뉴엣반 네이처파크 체험학습", short: "네이처파크" },
+    { id: "d-fam-1119", date: "2026-11-19", cat: "family", icon: "🥬", text: "유하 미뉴엣반 동변동 무뽑기 체험", short: "무뽑기" },
     { id: "d-fam-1123", date: "2026-11-23", cat: "family", icon: "🏥", text: "유하 라파이비인후과 · 목감기약", short: "라파이비인후과" },
+    { id: "d-fam-1123-kt", date: "2026-11-23", cat: "family", icon: "🎂", text: "솔리유치원 11월 생일파티", short: "생일파티" },
+    { id: "d-duty-1123", date: "2026-11-23", cat: "duty", text: "지석 근무 · 주간", short: "주간", shift: "주간" },
+    { id: "d-duty-1124", date: "2026-11-24", cat: "duty", text: "지석 근무 · 주간", short: "주간", shift: "주간" },
     { id: "d-fam-1128", date: "2026-11-28", cat: "family", text: "가창힐링하우스 자연체험놀이터", short: "가창놀이터", time: "오후 1:00", place: "대구광역시 달성군 가창면 가창동로 487" },
     { id: "d-duty-1125", date: "2026-11-25", cat: "duty", text: "지석 근무 · 주간", short: "주간", shift: "주간" },
     { id: "d-duty-1126", date: "2026-11-26", cat: "duty", text: "지석 근무 · 주간", short: "주간", shift: "주간" },
@@ -1939,10 +1955,76 @@ var MEAL_IMAGES = {
     memos[iso] = list;
   }
 
-  let records = store.get(GROW_KEY, []);
-  records = (Array.isArray(records) ? records : [])
-    .filter(r => r && r.date && isFinite(r.height) && isFinite(r.weight))
-    .map(r => ({ id: r.id || uid(), date: String(r.date).slice(0, 10), height: +r.height, weight: +r.weight }));
+  /* ── 유하 성장 기록 ─────────────────────────────────
+     2026년 메모장에 적어 둔 키 기록 7개를 기본값으로 넣습니다.
+     몸무게는 아직 비어 있어도 되고(null), 키만으로도 그래프를 그립니다. */
+  const YUHA_BIRTH = "2022-07-15";
+  const GROW_SEED = [
+    { date: "2026-02-23", height: 94 },
+    { date: "2026-03-03", height: 95.3 },
+    { date: "2026-03-14", height: 95 },
+    { date: "2026-03-27", height: 97.6 },
+    { date: "2026-06-11", height: 99.1 },
+    { date: "2026-07-16", height: 99.6 },
+    { date: "2026-08-18", height: 100.5 }
+  ];
+  const GROW_SEED_FLAG = "yuhane-growth-seed-v2";
+
+  function cleanRecords(raw){
+    return (Array.isArray(raw) ? raw : [])
+      .filter(r => r && r.date && isFinite(+r.height) && +r.height > 0)
+      .map(r => ({
+        id: r.id ? String(r.id) : uid(),
+        date: String(r.date).slice(0, 10),
+        height: Math.round(+r.height * 10) / 10,
+        weight: (r.weight === null || r.weight === undefined || r.weight === "")
+          ? null
+          : (isFinite(+r.weight) && +r.weight > 0 ? Math.round(+r.weight * 10) / 10 : null)
+      }));
+  }
+
+  let records = cleanRecords(store.get(GROW_KEY, null));
+  /* 기본 키 기록은 기기마다 한 번만 채워 넣고, 지운 기록은 다시 살리지 않습니다. */
+  if(store.get(GROW_SEED_FLAG, null) !== "v2"){
+    const seeded = {};
+    records.forEach(r => { seeded[r.date] = 1; });
+    GROW_SEED.forEach(s => {
+      if(seeded[s.date]) return;
+      records.push({ id: "g-" + s.date, date: s.date, height: s.height, weight: null });
+    });
+    records.sort(cmpDate);
+    store.set(GROW_KEY, records);
+    store.set(GROW_SEED_FLAG, "v2");
+  }
+
+  /* ── 또래 평균: 질병관리청 2017 소아청소년 성장도표 · 여아 50백분위수 ──
+     유하 생년월일(2022-07-15)로 월령을 계산해 두 점 사이를 선형 보간합니다. */
+  const PEER_H = [[36, 94.9], [42, 98.4], [48, 101.8], [54, 105.0], [60, 108.1], [66, 111.1], [72, 114.1]];
+  const PEER_W = [[36, 13.9], [42, 14.9], [48, 16.0], [54, 17.1], [60, 18.2], [66, 19.4], [72, 20.7]];
+  const r1 = v => Math.round(v * 10) / 10;
+  function monthsAt(iso){
+    const p = String(iso || "").split("-");
+    const b = YUHA_BIRTH.split("-");
+    if(p.length < 3) return null;
+    let m = (+p[0] - +b[0]) * 12 + (+p[1] - +b[1]);
+    if(+p[2] < +b[2]) m -= 1;
+    return m;
+  }
+  function peerValue(pts, months){
+    if(months === null || !isFinite(months)) return null;
+    if(months <= pts[0][0]) return pts[0][1];
+    const last = pts[pts.length - 1];
+    if(months >= last[0]) return last[1];
+    for(let i = 0; i < pts.length - 1; i++){
+      const a = pts[i], b = pts[i + 1];
+      if(months >= a[0] && months <= b[0]){
+        return r1(a[1] + (b[1] - a[1]) * (months - a[0]) / (b[0] - a[0]));
+      }
+    }
+    return last[1];
+  }
+  const peerHeight = iso => peerValue(PEER_H, monthsAt(iso));
+  const peerWeight = iso => peerValue(PEER_W, monthsAt(iso));
 
   const saveMemos = () => store.set(MEMO_KEY, memos);
   const saveRecords = () => store.set(GROW_KEY, records.map(r => ({ id: r.id, date: r.date, height: r.height, weight: r.weight })));
@@ -2455,13 +2537,26 @@ var MEAL_IMAGES = {
 
   function renderGrowth(){
     const recs = records.slice().sort(cmpDate);
-    const last = recs[recs.length - 1];
-    const prev = recs[recs.length - 2];
-    const first = recs[0];
+    const last = recs[recs.length - 1] || null;
+    const prev = recs[recs.length - 2] || null;
+    const first = recs[0] || null;
+    const weighed = recs.filter(r => r.weight !== null);
+    const lastW = weighed[weighed.length - 1] || null;
+    const prevW = weighed[weighed.length - 2] || null;
+
     const dh = last && prev ? last.height - prev.height : null;
-    const dw = last && prev ? last.weight - prev.weight : null;
+    const dw = lastW && prevW ? lastW.weight - prevW.weight : null;
     const th = last && first && recs.length > 1 ? last.height - first.height : null;
-    const tw = last && first && recs.length > 1 ? last.weight - first.weight : null;
+    const tw = lastW && weighed.length > 1 ? lastW.weight - weighed[0].weight : null;
+
+    /* 또래 여아 평균(50백분위수)과 견주기 */
+    const nowM = monthsAt(todayIso());
+    const hM = last ? monthsAt(last.date) : nowM;
+    const wM = lastW ? monthsAt(lastW.date) : nowM;
+    const ph = peerHeight(last ? last.date : todayIso());
+    const pwW = peerWeight(lastW ? lastW.date : todayIso());
+    const hGap = (last && ph !== null) ? r1(last.height - ph) : null;
+    const wGap = (lastW && pwW !== null) ? r1(lastW.weight - pwW) : null;
 
     $("#statGrid").innerHTML = `
       <div class="stat-card hi">
@@ -2471,18 +2566,28 @@ var MEAL_IMAGES = {
       </div>
       <div class="stat-card">
         <div class="st">최근 몸무게</div>
-        <div class="sv">${last ? num(last.weight) : "—"}<em>kg</em></div>
-        <div class="sd">${last ? md(last.date) + " 측정" : "기록을 남겨 보세요"}</div>
+        <div class="sv">${lastW ? num(lastW.weight) : "—"}<em>kg</em></div>
+        <div class="sd">${lastW ? md(lastW.date) + " 측정" : "아직 몸무게 기록이 없어요"}</div>
       </div>
       <div class="stat-card">
         <div class="st">지난 기록 대비</div>
         <div class="sv">${dh === null ? "—" : signed(dh, "cm")}</div>
-        <div class="sd">${dw === null ? "기록 2개부터 비교돼요" : "몸무게 " + signed(dw, "kg")}</div>
+        <div class="sd">${dw === null ? (lastW ? "몸무게 기록 2개부터 비교돼요" : "키 기록 2개부터 비교돼요") : "몸무게 " + signed(dw, "kg")}</div>
       </div>
       <div class="stat-card">
         <div class="st">처음 기록 대비</div>
         <div class="sv">${th === null ? "—" : signed(th, "cm")}</div>
-        <div class="sd">${tw === null ? "기록 2개부터 비교돼요" : "몸무게 " + signed(tw, "kg")}</div>
+        <div class="sd">${tw === null ? (lastW ? "몸무게 기록 2개부터 비교돼요" : "첫 키 기록부터 자라고 있어요") : "몸무게 " + signed(tw, "kg")}</div>
+      </div>
+      <div class="stat-card peer">
+        <div class="st">또래 평균 키<span class="tag">${hM !== null ? hM + "개월" : ""}</span></div>
+        <div class="sv">${ph === null ? "—" : num(ph)}<em>cm</em></div>
+        <div class="sd">${last && hGap !== null ? "유하 " + num(last.height) + "cm · 평균보다 " + signed(hGap, "cm") : "같은 개월 또래 여아 평균"}</div>
+      </div>
+      <div class="stat-card peer">
+        <div class="st">또래 평균 몸무게<span class="tag">${wM !== null ? wM + "개월" : ""}</span></div>
+        <div class="sv">${pwW === null ? "—" : num(pwW)}<em>kg</em></div>
+        <div class="sd">${lastW && wGap !== null ? "유하 " + num(lastW.weight) + "kg · 평균보다 " + signed(wGap, "kg") : "지금 " + wM + "개월 또래 평균 · 몸무게 기록 없음"}</div>
       </div>`;
 
     renderChart(recs);
@@ -2520,13 +2625,18 @@ var MEAL_IMAGES = {
       return;
     }
 
-    const hs = recs.map(r => r.height).concat([AVG_H]);
-    const ws = recs.map(r => r.weight).concat([AVG_W]);
+    /* 축 범위는 유하 기록과 또래 평균을 함께 담아 점선이 잘리지 않게 */
+    const peerHs = recs.map(r => peerHeight(r.date)).filter(v => v !== null);
+    const peerWs = recs.map(r => peerWeight(r.date)).filter(v => v !== null);
+    const weighed = recs.filter(r => r.weight !== null);
+    const hs = recs.map(r => r.height).concat(peerHs.length ? peerHs : [AVG_H]);
+    const ws = weighed.map(r => r.weight).concat(peerWs.length ? peerWs : [AVG_W]);
     const hMin = Math.min.apply(null, hs) - 3, hMax = Math.max.apply(null, hs) + 3;
     const wMin = Math.min.apply(null, ws) - 2.5, wMax = Math.max.apply(null, ws) + 2.5;
     const x = i => recs.length === 1 ? L + pw / 2 : L + pw * i / (recs.length - 1);
     const yH = v => T + ph * (1 - (v - hMin) / (hMax - hMin));
     const yW = v => T + ph * (1 - (v - wMin) / (wMax - wMin));
+    const pathOf = pts => pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
 
     grid();
     for(let i = 0; i <= 3; i++){
@@ -2540,11 +2650,18 @@ var MEAL_IMAGES = {
       svg.appendChild(l1); svg.appendChild(l2);
     }
 
-    svg.appendChild(mk("line", { x1: L, y1: yH(AVG_H), x2: W - R, y2: yH(AVG_H), stroke: "#F2C9D2", "stroke-width": 1.2, "stroke-dasharray": "4 5" }));
-    svg.appendChild(mk("line", { x1: L, y1: yW(AVG_W), x2: W - R, y2: yW(AVG_W), stroke: "#C3DBD3", "stroke-width": 1.2, "stroke-dasharray": "2 6" }));
+    /* 또래 평균: 키 = 연보라 점선, 몸무게 = 연민트 점선 */
+    const peerHPts = recs.map((r, i) => { const v = peerHeight(r.date); return v === null ? null : [x(i), yH(v)]; }).filter(Boolean);
+    const peerWPts = recs.map((r, i) => { const v = peerWeight(r.date); return v === null ? null : [x(i), yW(v)]; }).filter(Boolean);
+    if(peerWPts.length > 1){
+      svg.appendChild(mk("path", { d: pathOf(peerWPts), fill: "none", stroke: "#B7D3C9", "stroke-width": 1.4, "stroke-dasharray": "3 3.5", "stroke-linecap": "round" }));
+    }
+    if(peerHPts.length > 1){
+      svg.appendChild(mk("path", { d: pathOf(peerHPts), fill: "none", stroke: "#C6B4D6", "stroke-width": 1.6, "stroke-dasharray": "4.5 4", "stroke-linecap": "round" }));
+    }
 
     const hPts = recs.map((r, i) => [x(i), yH(r.height)]);
-    const wPts = recs.map((r, i) => [x(i), yW(r.weight)]);
+    const wPts = recs.map((r, i) => r.weight === null ? null : [x(i), yW(r.weight)]).filter(Boolean);
 
     if(hPts.length > 1){
       let area = "M" + hPts[0][0].toFixed(1) + "," + (T + ph);
@@ -2559,22 +2676,31 @@ var MEAL_IMAGES = {
       svg.appendChild(mk("path", { d: area, fill: "url(#gPinkFade)" }));
     }
 
-    const pathOf = pts => pts.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" ");
-    if(recs.length > 1){
+    if(wPts.length > 1){
       svg.appendChild(mk("path", { d: pathOf(wPts), fill: "none", stroke: "#8DC0AF", "stroke-width": 2, "stroke-linecap": "round", "stroke-linejoin": "round" }));
+    }
+    if(hPts.length > 1){
       svg.appendChild(mk("path", { d: pathOf(hPts), fill: "none", stroke: "#E88A9E", "stroke-width": 2.2, "stroke-linecap": "round", "stroke-linejoin": "round" }));
+    }
+    if(recs.length === 1 && peerHPts.length === 1){
+      svg.appendChild(mk("circle", { cx: peerHPts[0][0], cy: peerHPts[0][1], r: 2.4, fill: "#C6B4D6" }));
     }
 
     const showVals = recs.length <= 6;
     recs.forEach((r, i) => {
       svg.appendChild(mk("circle", { cx: hPts[i][0], cy: hPts[i][1], r: 3.6, fill: "#fff", stroke: "#E88A9E", "stroke-width": 2 }));
-      svg.appendChild(mk("circle", { cx: wPts[i][0], cy: wPts[i][1], r: 3.1, fill: "#fff", stroke: "#8DC0AF", "stroke-width": 1.8 }));
+      if(r.weight !== null){
+        svg.appendChild(mk("circle", { cx: x(i), cy: yW(r.weight), r: 3.1, fill: "#fff", stroke: "#8DC0AF", "stroke-width": 1.8 }));
+      }
       if(showVals){
         const th = mk("text", { x: hPts[i][0], y: hPts[i][1] - 8, "text-anchor": "middle", "font-size": "8", "font-weight": "600", fill: "#C9607A" });
         th.textContent = num(r.height);
-        const tw = mk("text", { x: wPts[i][0], y: wPts[i][1] + 13, "text-anchor": "middle", "font-size": "7.5", "font-weight": "600", fill: "#5A9A87" });
-        tw.textContent = num(r.weight);
-        svg.appendChild(th); svg.appendChild(tw);
+        svg.appendChild(th);
+        if(r.weight !== null){
+          const tw2 = mk("text", { x: x(i), y: yW(r.weight) + 13, "text-anchor": "middle", "font-size": "7.5", "font-weight": "600", fill: "#5A9A87" });
+          tw2.textContent = num(r.weight);
+          svg.appendChild(tw2);
+        }
       }
       if(recs.length <= 8 || i % 2 === 0 || i === recs.length - 1){
         const tx = mk("text", { x: hPts[i][0], y: H - 10, "text-anchor": "middle", "font-size": "8", fill: "#B7A6AB" });
@@ -2593,14 +2719,19 @@ var MEAL_IMAGES = {
     $("#recList").innerHTML = desc.map(r => {
       const idx = recs.indexOf(r);
       const p = idx > 0 ? recs[idx - 1] : null;
-      const delta = p
-        ? `지난 기록보다 ${signed(r.height - p.height, "cm")} · ${signed(r.weight - p.weight, "kg")}`
-        : "첫 기록";
+      const wPrev = recs.slice(0, idx).reverse().filter(x => x.weight !== null)[0] || null;
+      const bits = [];
+      if(p) bits.push("지난 기록보다 " + signed(r.height - p.height, "cm"));
+      if(r.weight !== null && wPrev) bits.push(signed(r.weight - wPrev.weight, "kg"));
+      const ph = peerHeight(r.date);
+      const hg = ph === null ? null : r1(r.height - ph);
+      let delta = bits.length ? bits.join(" · ") : "첫 기록";
+      if(hg !== null) delta += (bits.length ? " · " : "") + "또래 평균 " + signed(hg, "cm");
       return `
         <div class="rec-item">
           <div class="rec-date">${md(r.date)}<small>${r.date.slice(0, 4)}</small></div>
           <div class="rec-main">
-            <div class="rec-nums"><span class="h">${num(r.height)}cm</span><span class="w">${num(r.weight)}kg</span></div>
+            <div class="rec-nums"><span class="h">${num(r.height)}cm</span>${r.weight !== null ? `<span class="w">${num(r.weight)}kg</span>` : ""}</div>
             <div class="rec-delta">${delta}</div>
           </div>
           <button class="rec-del" type="button" data-del="${r.id}" aria-label="${md(r.date)} 기록 삭제"><svg class="ico"><use href="#i-trash"/></svg></button>
@@ -2615,18 +2746,20 @@ var MEAL_IMAGES = {
     const err = $("#gErr");
     const date = $("#gDate").value;
     const h = parseFloat($("#gHeight").value);
-    const w = parseFloat($("#gWeight").value);
+    const wRaw = String($("#gWeight").value === undefined || $("#gWeight").value === null ? "" : $("#gWeight").value).trim();
+    const w = wRaw === "" ? null : parseFloat(wRaw);
     err.textContent = "";
     if(!date){ err.textContent = "날짜를 골라 주세요."; return; }
     if(!isFinite(h) || h < 60 || h > 160){ err.textContent = "키는 60~160cm 사이로 입력해 주세요."; return; }
-    if(!isFinite(w) || w < 8 || w > 60){ err.textContent = "몸무게는 8~60kg 사이로 입력해 주세요."; return; }
+    if(w !== null && (!isFinite(w) || w < 8 || w > 60)){ err.textContent = "몸무게는 8~60kg 사이로 입력해 주세요."; return; }
     const same = records.find(r => r.date === date);
     if(same){
-      same.height = h; same.weight = w;
-      toast("같은 날짜 기록을 새 값으로 바꿨어요");
+      same.height = h;
+      if(w !== null) same.weight = w;
+      toast(w === null && same.weight !== null ? "키를 새 값으로 바꿨어요" : "같은 날짜 기록을 새 값으로 바꿨어요");
     }else{
       records.push({ id: uid(), date: date, height: h, weight: w });
-      toast("유하 기록을 저장했어요");
+      toast(w === null ? "키만 기록했어요" : "유하 기록을 저장했어요");
     }
     saveRecords();
     renderGrowth();
@@ -2681,7 +2814,7 @@ var MEAL_IMAGES = {
     }
     if(records.length){
       L.push("유하 기록");
-      records.slice().sort(cmpDate).forEach(r => L.push("· " + r.date + "  " + num(r.height) + "cm / " + num(r.weight) + "kg"));
+      records.slice().sort(cmpDate).forEach(r => L.push("· " + r.date + "  " + num(r.height) + "cm" + (r.weight !== null ? " / " + num(r.weight) + "kg" : "")));
     }else{
       L.push("유하 기록: 아직 없음");
     }
@@ -2818,8 +2951,11 @@ var MEAL_IMAGES = {
     if(!data) throw new Error("유하네 식단 기록 코드가 아니에요.");
 
     const incoming = (Array.isArray(data.growth) ? data.growth : [])
-      .filter(g => g && g.d && isFinite(+g.h) && isFinite(+g.w))
-      .map(g => ({ date: String(g.d).slice(0, 10), height: +g.h, weight: +g.w }));
+      .filter(g => g && g.d && isFinite(+g.h))
+      .map(g => ({
+        date: String(g.d).slice(0, 10), height: +g.h,
+        weight: (g.w === null || g.w === undefined || g.w === "") ? null : (isFinite(+g.w) ? +g.w : null)
+      }));
     const memoIn = (Array.isArray(data.memos) ? data.memos : [])
       .filter(m => m && typeof m.d === "string" && (m.t || m.h))
       .map(m => ({
@@ -2838,7 +2974,7 @@ var MEAL_IMAGES = {
     let count = 0;
     incoming.forEach(g => {
       const hit = records.find(r => r.date === g.date);
-      if(hit){ hit.height = g.height; hit.weight = g.weight; }
+      if(hit){ hit.height = g.height; if(g.weight !== null) hit.weight = g.weight; }
       else { records.push({ id: uid(), date: g.date, height: g.height, weight: g.weight }); }
       count++;
     });
@@ -3177,6 +3313,345 @@ var MEAL_IMAGES = {
     }, { passive: true });
   })();
 
+  /* ══════════════════════════════════════════════════════
+     실시간 동기화 — Firebase Realtime Database (REST + SSE)
+     · 화면은 localStorage로 먼저 그리고, 클라우드 값은 이어서 덮어씁니다.
+     · 바뀐 섹션만 PATCH로 올리고, 다른 기기의 put/patch는 EventSource로 받습니다.
+     · 내가 보낸 변경은 meta.clientId로 알아보고 그대로 넘깁니다(깜빡임 방지).
+     ══════════════════════════════════════════════════════ */
+  const SYNC_URL = "https://yuhane-family-default-rtdb.firebaseio.com/rooms/yh8f4k9m2p7x";
+  const SYNC_JSON = SYNC_URL + ".json";
+  const SYNC_CLIENT = "c" + uid();
+  const SYNC_TEXT = { on: "실시간 동기화", off: "오프라인 · 기기에 저장됨", wait: "동기화 연결 중" };
+
+  function cleanMemos(raw){
+    const src = (raw && typeof raw === "object" && !Array.isArray(raw)) ? raw : {};
+    const out = {};
+    Object.keys(src).forEach(iso => {
+      const list = Array.isArray(src[iso]) ? src[iso] : [];
+      const keep = list.filter(e => e && typeof e === "object").map(e => {
+        const o = {
+          id: e.id ? String(e.id) : uid(),
+          cat: MEMO_CATS[e.cat] ? e.cat : "etc",
+          text: String(e.text || "").slice(0, 40),
+          short: String(e.short || "").slice(0, 12),
+          time: String(e.time || "").slice(0, 20),
+          place: String(e.place || "").slice(0, 60),
+          shift: e.shift ? String(e.shift).slice(0, 8) : "",
+          hidden: !!e.hidden
+        };
+        if(e.icon) o.icon = String(e.icon).slice(0, 8);
+        return o;
+      });
+      if(keep.length) out[iso] = keep;
+    });
+    return out;
+  }
+  function cleanKids(raw){
+    return (Array.isArray(raw) ? raw : [])
+      .filter(k => k && typeof k.text === "string" && k.text && KID_DROP.indexOf(String(k.text).trim()) === -1)
+      .map((k, i) => ({ id: k.id ? String(k.id) : ("k" + i), text: String(k.text).slice(0, 60), done: !!k.done }));
+  }
+  function cleanAcad(raw){
+    return (Array.isArray(raw) ? raw : [])
+      .filter(a => a && typeof a.name === "string" && a.name.trim())
+      .map((a, i) => ({
+        id: a.id ? String(a.id) : ("a" + i),
+        dow: Math.min(6, Math.max(0, Math.round(+a.dow) || 0)),
+        name: ACAD_RENAME[String(a.name).trim()] || String(a.name).trim().slice(0, 30)
+      }));
+  }
+
+  const SYNC_SECTIONS = [
+    { key: "memos", ls: MEMO_KEY, label: "일정", read: () => memos, write: v => { memos = cleanMemos(v); store.set(MEMO_KEY, memos); } },
+    { key: "kids", ls: KID_KEY, label: "유치원 챙길 것", read: () => kidItems, write: v => { kidItems = cleanKids(v); store.set(KID_KEY, kidItems); } },
+    { key: "academy", ls: ACAD_KEY, label: "유하 학원", read: () => acadItems, write: v => { acadItems = cleanAcad(v); store.set(ACAD_KEY, acadItems); } },
+    { key: "plan", ls: PLAN_KEY, label: "이번 주 식단", read: () => plan, write: v => { plan = SLOT_IDS.map((def, i) => (Array.isArray(v) && MEAL_BY_KEY[v[i]]) ? v[i] : def); store.set(PLAN_KEY, plan); applyPlan(); buildShopping(); } },
+    { key: "shop", ls: SHOP_KEY, label: "장보기 체크", read: () => checked, write: v => { checked = (Array.isArray(v) ? v : []).filter(x => typeof x === "string"); store.set(SHOP_KEY, checked); } },
+    { key: "growth", ls: GROW_KEY, label: "유하 기록", read: () => records, write: v => { records = cleanRecords(v); store.set(GROW_KEY, records); } }
+  ];
+  const SYNC_BY_KEY = {};
+  const SYNC_BY_LS = {};
+  SYNC_SECTIONS.forEach(s => { SYNC_BY_KEY[s.key] = s; SYNC_BY_LS[s.ls] = s.key; });
+
+  const sync = {
+    state: "wait", remote: null, ready: null,
+    dirty: {}, applying: false, es: null, sse: false, timer: null, retry: null,
+    stats: { push: 0, fail: 0, applied: 0, echo: 0 }
+  };
+
+  function syncPaint(){
+    const el = $("#syncState");
+    if(!el) return;
+    el.setAttribute("data-state", sync.state);
+    const t = $("#syncText");
+    if(t) t.textContent = SYNC_TEXT[sync.state] || "";
+  }
+  function syncSet(state){
+    if(sync.state === state) return;
+    sync.state = state;
+    syncPaint();
+  }
+  function syncRender(){
+    renderAcad();
+    renderKids();
+    renderWeek();
+    renderCalendar();
+    renderShop();
+    renderGrowth();
+  }
+  function syncCanon(v){
+    if(v === null || v === undefined) return "null";
+    if(typeof v !== "object") return JSON.stringify(v);
+    if(Array.isArray(v)) return "[" + v.map(syncCanon).join(",") + "]";
+    return "{" + Object.keys(v).sort().map(k => JSON.stringify(k) + ":" + syncCanon(v[k])).join(",") + "}";
+  }
+  function syncBody(keys){
+    const out = {};
+    keys.forEach(k => {
+      const s = SYNC_BY_KEY[k];
+      if(!s) return;
+      const v = s.read();
+      out[k] = (v === undefined) ? null : JSON.parse(JSON.stringify(v));
+    });
+    out.meta = { clientId: SYNC_CLIENT, ts: Date.now() };
+    return out;
+  }
+
+  /* 로컬에서 바꾸면 바뀐 섹션만 모아 둠다가 한 번에 올립니다 */
+  function syncMark(lsKey){
+    if(sync.applying) return;
+    const k = SYNC_BY_LS[lsKey];
+    if(!k) return;
+    sync.dirty[k] = 1;
+    if(sync.timer) return;
+    sync.timer = setTimeout(() => { sync.timer = null; syncFlush(); }, 0);
+  }
+  function syncFlush(){
+    const keys = Object.keys(sync.dirty);
+    sync.dirty = {};
+    if(!keys.length) return Promise.resolve(true);
+    if(typeof fetch !== "function"){
+      keys.forEach(k => { sync.dirty[k] = 1; });
+      syncSet("off");
+      return Promise.resolve(false);
+    }
+    const body = syncBody(keys);
+    sync.stats.push++;
+    return Promise.resolve()
+      .then(() => fetch(SYNC_JSON, {
+        method: "PATCH", cache: "no-store",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      }))
+      .then(r => {
+        if(r && r.ok === false) throw new Error("patch " + r.status);
+        if(sync.remote && typeof sync.remote === "object"){
+          Object.keys(body).forEach(k => { sync.remote[k] = body[k]; });
+        }
+        syncSet("on");
+        return true;
+      })
+      .catch(() => {
+        keys.forEach(k => { sync.dirty[k] = 1; });
+        sync.stats.fail++;
+        syncSet("off");
+        return false;
+      });
+  }
+
+  function syncFetchCloud(){
+    if(typeof fetch !== "function") return Promise.resolve(undefined);
+    return Promise.resolve()
+      .then(() => fetch(SYNC_JSON, { cache: "no-store" }))
+      .then(r => (r && r.ok === false) ? undefined : r.json());
+  }
+  function syncPull(){
+    return syncFetchCloud().then(data => {
+      if(data === undefined){ syncSet("off"); return false; }
+      syncApply(data);
+      return true;
+    }).catch(() => { syncSet("off"); return false; });
+  }
+
+  /* 클라우드 값 → 로컬 상태·화면 (같은 섹션은 건드리지 않아 깜빡이지 않음) */
+  function syncApply(data){
+    if(!data || typeof data !== "object" || Array.isArray(data)){
+      sync.remote = {};
+      return false;
+    }
+    sync.remote = data;
+    const changed = [];
+    SYNC_SECTIONS.forEach(s => {
+      if(!Object.prototype.hasOwnProperty.call(data, s.key)) return;
+      const v = data[s.key];
+      if(v === null || v === undefined) return;
+      if(sync.dirty[s.key]) return;      // 아직 못 올린 내 변경은 지키기
+      let cur = null;
+      try{ cur = s.read(); }catch(e){ cur = null; }
+      if(syncCanon(cur) === syncCanon(v)) return;
+      sync.applying = true;
+      try{ s.write(v); }catch(e){}
+      sync.applying = false;
+      changed.push(s.key);
+    });
+    if(changed.length){
+      sync.stats.applied++;
+      try{ syncRender(); }catch(e){}
+    }
+    return changed.length > 0;
+  }
+
+  function syncSeed(){
+    const body = syncBody(SYNC_SECTIONS.map(s => s.key));
+    sync.stats.push++;
+    return Promise.resolve()
+      .then(() => fetch(SYNC_JSON, {
+        method: "PUT", cache: "no-store",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      }))
+      .then(r => {
+        if(r && r.ok === false) throw new Error("seed " + r.status);
+        sync.remote = body;
+        syncSet("on");
+        return true;
+      })
+      .catch(() => { sync.stats.fail++; syncSet("off"); return false; });
+  }
+
+  function syncBoot(){
+    if(typeof fetch !== "function"){ syncSet("off"); return Promise.resolve(false); }
+    syncSet("wait");
+    return syncFetchCloud().then(data => {
+      if(data === undefined){ syncSet("off"); return false; }
+      if(!data || typeof data !== "object" || Array.isArray(data) || !Object.keys(data).length){
+        return syncSeed();       // 클라우드가 비어 있음 → 이 기기 데이터를 첫 값으로 올림
+      }
+      syncApply(data);
+      const missing = SYNC_SECTIONS.map(s => s.key).filter(k => !Object.prototype.hasOwnProperty.call(data, k));
+      if(missing.length){
+        missing.forEach(k => { sync.dirty[k] = 1; });
+        syncFlush();
+      }
+      syncSet("on");
+      return true;
+    }).catch(() => { syncSet("off"); return false; });
+  }
+
+  function syncMerge(path, kind, data){
+    const root = (path === "/" || path === "");
+    if(!root){
+      sync.remote = (sync.remote && typeof sync.remote === "object") ? sync.remote : {};
+      const segs = String(path).split("/").filter(Boolean);
+      let node = sync.remote;
+      for(let i = 0; i < segs.length - 1; i++){
+        const k = segs[i];
+        if(!node[k] || typeof node[k] !== "object") node[k] = {};
+        node = node[k];
+      }
+      const k = segs[segs.length - 1];
+      if(k === undefined) return;
+      if(kind === "patch" && node[k] && typeof node[k] === "object" && !Array.isArray(node[k]) && data && typeof data === "object" && !Array.isArray(data)){
+        Object.keys(data).forEach(x => { node[k][x] = data[x]; });
+      }else{
+        node[k] = data;
+      }
+      return;
+    }
+    if(kind === "put"){
+      sync.remote = (data && typeof data === "object" && !Array.isArray(data)) ? data : {};
+      return;
+    }
+    sync.remote = (sync.remote && typeof sync.remote === "object") ? sync.remote : {};
+    const patch = (data && typeof data === "object" && !Array.isArray(data)) ? data : {};
+    Object.keys(patch).forEach(k => {
+      if(patch[k] === null || patch[k] === undefined) delete sync.remote[k];
+      else sync.remote[k] = patch[k];
+    });
+  }
+
+  function syncEvent(kind, payload){
+    if(!payload || typeof payload !== "object") return;
+    const data = Object.prototype.hasOwnProperty.call(payload, "data") ? payload.data : null;
+    const meta = (data && typeof data === "object" && !Array.isArray(data)) ? data.meta : null;
+    if(meta && meta.clientId === SYNC_CLIENT){
+      sync.stats.echo++;
+      syncMerge(payload.path || "/", kind, data);   // 내가 보낸 변경: 화면은 그대로
+      return;
+    }
+    syncMerge(payload.path || "/", kind, data);
+    syncApply(sync.remote);
+  }
+
+  function syncStream(){
+    if(typeof EventSource !== "function") return;
+    if(sync.es){ try{ sync.es.close(); }catch(e){} sync.es = null; }
+    let es = null;
+    try{ es = new EventSource(SYNC_JSON); }catch(e){ return; }
+    sync.es = es;
+    if(typeof es.addEventListener !== "function") return;
+    const live = () => { sync.sse = true; syncSet("on"); };
+    const onData = kind => e => {
+      let payload = null;
+      try{ payload = JSON.parse(e && e.data); }catch(err){ return; }
+      syncEvent(kind, payload);
+    };
+    es.addEventListener("open", live);
+    es.addEventListener("put", onData("put"));
+    es.addEventListener("patch", onData("patch"));
+    es.addEventListener("keep-alive", live);
+    es.addEventListener("cancel", () => { sync.sse = false; syncSet("off"); syncRetry(); });
+    es.addEventListener("error", () => { sync.sse = false; syncSet("off"); });
+  }
+  function syncRetry(){
+    if(sync.retry) return;
+    sync.retry = setTimeout(() => { sync.retry = null; syncStream(); }, 4000);
+  }
+
+  function syncWire(){
+    try{
+      if(typeof window !== "undefined" && typeof window.addEventListener === "function"){
+        window.addEventListener("online", () => {
+          syncSet("wait");
+          syncFlush().then(() => syncPull()).then(() => syncStream());
+        });
+        window.addEventListener("offline", () => syncSet("off"));
+      }
+    }catch(e){}
+    try{
+      if(typeof document !== "undefined" && typeof document.addEventListener === "function"){
+        document.addEventListener("visibilitychange", () => {
+          if(document.visibilityState !== "visible") return;
+          syncFlush().then(() => syncPull());
+          if(sync.state === "off") syncStream();
+        });
+      }
+    }catch(e){}
+  }
+
+  function syncStart(){
+    syncWriter = key => syncMark(key);
+    syncPaint();
+    syncWire();
+    sync.ready = syncBoot().then(ok => { syncStream(); return ok; });
+    try{
+      if(typeof window !== "undefined"){
+        window.yuhaneSync = {
+          clientId: SYNC_CLIENT,
+          state(){ return sync.state; },
+          stats: sync.stats,
+          ready(){ return sync.ready; },
+          flush: syncFlush,
+          pull: syncPull,
+          apply: syncApply,
+          event: syncEvent,
+          cached(){ return sync.remote; }
+        };
+      }
+    }catch(e){}
+  }
+
   /* ── 시작 ── */
   renderAcad();
   renderKids();
@@ -3187,6 +3662,7 @@ var MEAL_IMAGES = {
   renderKindy();
   showSub(store.get(SUB_KEY, "home"));
   setView("cal");
+  syncStart();
 })();
 </script>
 </body>
