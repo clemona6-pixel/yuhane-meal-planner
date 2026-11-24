@@ -476,6 +476,12 @@ var KINDY_MENU_DATA = {
   /* ── 선택 날짜 패널 ───────────────────── */
   .day-panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 13px 8px;margin-bottom:12px}
   .dp-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
+  .dp-right{display:flex;align-items:center;gap:6px;flex:none;margin-left:auto}
+  .dp-close{flex:none;width:22px;height:22px;display:grid;place-items:center;background:none;border:0;border-radius:6px;color:#CFBFC4;cursor:pointer;padding:0}
+  .dp-close .ico{width:12px;height:12px}
+  .dp-close:active{background:var(--pink-50);color:var(--accent-deep)}
+  .day-panel[hidden]{display:none}
+  .hint[hidden]{display:none}
   .dp-head h3{margin:0;font-size:13px;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
   .dp-tags{display:flex;align-items:center;gap:4px;flex:none}
   .dp-holi{font-size:9.5px;font-weight:600;color:#D94B5A;background:#FDECEE;border-radius:5px;padding:2px 6px}
@@ -979,15 +985,18 @@ var KINDY_MENU_DATA = {
       <div class="cal-grid" id="calMonths"></div>
     </div>
 
-    <div class="day-panel" id="dayPanel">
+    <div class="day-panel closed" id="dayPanel" hidden>
       <div class="dp-head">
         <h3 id="dpDate">—</h3>
-        <span class="dp-tags" id="dpTags"></span>
+        <span class="dp-right">
+          <span class="dp-tags" id="dpTags"></span>
+          <button class="dp-close" id="dpClose" type="button" aria-label="상세 일정 닫기"><svg class="ico"><use href="#i-close"/></svg></button>
+        </span>
       </div>
       <div id="dpList"></div>
     </div>
 
-    <p class="hint"><svg class="ico"><use href="#i-calendar"/></svg>날짜를 누르면 그날 일정이 아래에 보여요</p>
+    <p class="hint" id="calHint"><svg class="ico"><use href="#i-calendar"/></svg>날짜를 누르면 그날 일정이 열려요</p>
 
     <div class="acad-card">
       <div class="acad-bar">
@@ -2118,6 +2127,7 @@ var MEAL_IMAGES = {
   let calY = NOW.getFullYear();
   let calM = NOW.getMonth() + 1;
   let selDate = todayIso();
+  let panelOpen = false;   // 날짜 상세는 날짜를 누를 때만 열림
   const shortMain = d => d.short || String(d.main || "").split(/\s+/).pop();
 
   function shiftMonth(delta){
@@ -2125,7 +2135,21 @@ var MEAL_IMAGES = {
     while(m < 1){ m += 12; y -= 1; }
     while(m > 12){ m -= 12; y += 1; }
     calY = y; calM = m;
+    panelOpen = false;
     renderCalendar();
+  }
+
+  function syncDayPanel(){
+    const panel = $("#dayPanel");
+    const hint = $("#calHint");
+    if(panel){
+      panel.hidden = !panelOpen;
+      panel.classList.toggle("closed", !panelOpen);
+    }
+    if(hint){
+      hint.hidden = panelOpen;
+      hint.classList.toggle("closed", panelOpen);
+    }
   }
 
   function renderCalendar(){
@@ -2149,7 +2173,7 @@ var MEAL_IMAGES = {
       if(dow === 6) cls += " sat";
       if(holi) cls += " holi";
       if(iso === t) cls += " is-today";
-      if(iso === selDate) cls += " is-sel";
+      if(panelOpen && iso === selDate) cls += " is-sel";
 
       const chips = [];
       const dutyTags = [];
@@ -2168,7 +2192,7 @@ var MEAL_IMAGES = {
         + (lun ? " 음력 " + lun.m + "월 " + lun.d + "일" : "")
         + (list.length ? " " + list.map(m => m.text).join(", ") : "");
 
-      cells += `<div class="cal-cell"><button class="${cls}" type="button" data-date="${iso}" aria-label="${esc(aria)}"${iso === selDate ? " aria-pressed=\"true\"" : ""}>`
+      cells += `<div class="cal-cell"><button class="${cls}" type="button" data-date="${iso}" aria-label="${esc(aria)}"${panelOpen && iso === selDate ? " aria-pressed=\"true\"" : ""}>`
         + `<span class="dline"><span class="dnum">${d}</span>${dutyTags.slice(0, 2).join("")}</span>`
         + (lun ? `<span class="lun">${lun.m}.${lun.d}</span>` : "")
         + (chips.length ? `<span class="chips">${chips.slice(0, 3).join("")}</span>` : "")
@@ -2208,6 +2232,7 @@ var MEAL_IMAGES = {
     rows.push(`<button class="dp-add" type="button" data-memo="add"><svg class="ico"><use href="#i-plus"/></svg>일정 메모 추가</button>`);
 
     $("#dpList").innerHTML = rows.join("");
+    syncDayPanel();
   }
 
   /* ── 좌우 스와이프로 달 이동 (손가락 제스처) ── */
@@ -2244,6 +2269,11 @@ var MEAL_IMAGES = {
     calY = n.getFullYear();
     calM = n.getMonth() + 1;
     selDate = todayIso();
+    panelOpen = true;
+    renderCalendar();
+  });
+  $("#dpClose").addEventListener("click", () => {
+    panelOpen = false;
     renderCalendar();
   });
   $("#calMonths").addEventListener("click", e => {
@@ -2251,7 +2281,13 @@ var MEAL_IMAGES = {
     if(!btn) return;
     const iso = btn.getAttribute("data-date");
     if(!iso) return;
+    if(panelOpen && iso === selDate){        // 같은 날짜를 다시 누르면 접기
+      panelOpen = false;
+      renderCalendar();
+      return;
+    }
     selDate = iso;
+    panelOpen = true;
     renderCalendar();
   });
   $("#dpList").addEventListener("click", e => {
