@@ -1772,6 +1772,7 @@ var MEAL_IMAGES = {
   if(!memos || typeof memos !== "object" || Array.isArray(memos)) memos = {};
 
   const DEFAULT_ENTRIES = [
+    { id: "d-fam-1123", date: "2026-11-23", cat: "family", icon: "🏥", text: "유하 라파이비인후과 · 목감기약", short: "라파이비인후과" },
     { id: "d-fam-1128", date: "2026-11-28", cat: "family", text: "가창힐링하우스 자연체험놀이터", short: "가창놀이터", time: "오후 1:00", place: "대구광역시 달성군 가창면 가창동로 487" },
     { id: "d-duty-1125", date: "2026-11-25", cat: "duty", text: "지석 근무 · 주간", short: "주간", shift: "주간" },
     { id: "d-duty-1126", date: "2026-11-26", cat: "duty", text: "지석 근무 · 주간", short: "주간", shift: "주간" },
@@ -1831,6 +1832,7 @@ var MEAL_IMAGES = {
       if(s && s.hidden) return;
       out.push(s ? {
         id: d.id, cat: s.cat || d.cat, text: s.text || d.text, short: s.short || d.short,
+        icon: s.icon || d.icon || "",
         time: s.time || d.time || "", place: s.place || d.place || "", shift: s.shift || d.shift || ""
       } : d);
     });
@@ -1987,7 +1989,7 @@ var MEAL_IMAGES = {
           dutyTags.push(`<em class="duty-tag">${esc(dutyLetter(m))}</em>`);
           return;
         }
-        chips.push(`<span class="chip memo">${cat.icon} ${esc(m.short || m.text)}</span>`);
+        chips.push(`<span class="chip memo">${m.icon || cat.icon} ${esc(m.short || m.text)}</span>`);
       });
 
       const aria = calM + "월 " + d + "일 " + W[dow] + "요일"
@@ -2027,7 +2029,7 @@ var MEAL_IMAGES = {
       const cat = MEMO_CATS[m.cat] || MEMO_CATS.etc;
       const meta = [m.time, m.place].filter(Boolean).map(esc).join(" · ");
       rows.push(`<div class="dp-item">
-        ${m.cat === "duty" ? `<span class="dp-emo duty-emo">${esc(dutyLetter(m))}</span>` : `<span class="dp-emo">${cat.icon}</span>`}
+        ${m.cat === "duty" ? `<span class="dp-emo duty-emo">${esc(dutyLetter(m))}</span>` : `<span class="dp-emo">${m.icon || cat.icon}</span>`}
         <div class="dp-body"><div class="dp-lab${m.cat === "duty" ? " duty" : ""}">${esc(cat.label)}</div><div class="dp-txt">${esc(m.text)}</div>${meta ? `<div class="dp-meta">${meta}</div>` : ""}</div>
         <button class="dp-mini" type="button" data-memo="edit" data-entry="${esc(m.id)}">수정</button>
       </div>`);
@@ -2101,7 +2103,7 @@ var MEAL_IMAGES = {
       const cat = MEMO_CATS[m.cat] || MEMO_CATS.etc;
       const on = m.id === editEntryId;
       return `<div class="de-item${on ? " editing" : ""}">
-        ${m.cat === "duty" ? `<span class="de-emo duty-emo">${esc(dutyLetter(m))}</span>` : `<span class="de-emo">${cat.icon}</span>`}
+        ${m.cat === "duty" ? `<span class="de-emo duty-emo">${esc(dutyLetter(m))}</span>` : `<span class="de-emo">${m.icon || cat.icon}</span>`}
         <div class="de-body"><div class="de-lab${m.cat === "duty" ? " duty" : ""}">${esc(cat.label)}</div><div class="de-txt">${esc(m.text)}</div></div>
         <button class="dp-mini" type="button" data-edit="${esc(m.id)}">수정</button>
         <button class="de-del" type="button" data-del="${esc(m.id)}" aria-label="${esc(m.text)} 삭제"><svg class="ico"><use href="#i-close"/></svg></button>
@@ -2199,6 +2201,7 @@ var MEAL_IMAGES = {
       cat: memoCat,
       text: text,
       short: isDuty ? shift : (prev.short && prev.text === text ? prev.short : ""),
+      icon: prev.icon || "",
       time: prev.time || "",
       place: prev.place || "",
       shift: shift,
