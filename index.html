@@ -5,8 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#FFF9FA">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="유하네 식단">
-<title>유하네 식단</title>
+<meta name="apple-mobile-web-app-title" content="유하네">
+<title>유하네</title>
 <script>
 /* ══════════════════════════════════════════════════════
    MEAL_PLAN_DATA — 이번 주 식단 데이터
@@ -14,8 +14,9 @@
    사진은 아래쪽 MEAL_IMAGES에서 img 키로 연결됩니다.
    ══════════════════════════════════════════════════════ */
 var MEAL_PLAN_DATA = {
-  appName: "유하네 식단",
-  tagline: "우리 가족 건강 저녁",
+  appName: "유하네",
+  tagline: "우리 가족의 한 주",
+  brand: "유하네 식단",
   weekId: "2026-11-30",
   weekLabel: "11월 30일 ~ 12월 4일",
   weekSub: "월~금 · 5일",
@@ -27,6 +28,7 @@ var MEAL_PLAN_DATA = {
       dow: "월",
       theme: "rose",
       main: "연어구이",
+      short: "연어구이",
       sides: ["두부된장국", "잡곡밥"],
       time: "20분",
       img: "mon",
@@ -52,6 +54,7 @@ var MEAL_PLAN_DATA = {
       dow: "화",
       theme: "apricot",
       main: "소고기 버섯 들깨탕",
+      short: "들깨탕",
       sides: ["김계란말이", "흰쌀밥"],
       time: "20분",
       img: "tue",
@@ -77,6 +80,7 @@ var MEAL_PLAN_DATA = {
       dow: "수",
       theme: "sky",
       main: "닭안심 채소 볶음밥",
+      short: "볶음밥",
       sides: ["맑은 황태계란국"],
       time: "18분",
       img: "wed",
@@ -102,6 +106,7 @@ var MEAL_PLAN_DATA = {
       dow: "목",
       theme: "mint",
       main: "돼지안심 알배추찜",
+      short: "알배추찜",
       sides: ["검은콩밥"],
       time: "20분",
       img: "thu",
@@ -127,6 +132,7 @@ var MEAL_PLAN_DATA = {
       dow: "금",
       theme: "lilac",
       main: "가자미구이",
+      short: "가자미구이",
       sides: ["단호박 치즈 계란찜", "맑은 순두부국"],
       time: "20분",
       img: "fri",
@@ -147,65 +153,349 @@ var MEAL_PLAN_DATA = {
       tip: "계란찜은 약불에서 천천히 익혀야 부드러워요. 가자미는 가시가 적어 유하가 먹기 편한 생선이에요."
     }
   ],
+  /* ── 대체 메뉴 풀 ────────────────────────────────────
+     [식단·장보기]의 '다른 메뉴' / '식단 새로 추천'을 누르면
+     이 목록에서 골라 바뀝니다. days와 같은 형식에
+     emoji(사진 대신 보일 아이콘)만 더하면 됩니다.
+     ───────────────────────────────────────────────── */
+  pool: [
+    {
+      id: "p-dubu-hambak",
+      main: "닭가슴살 두부 함박스테이크",
+      short: "두부함박",
+      emoji: "🍖",
+      sides: ["토마토 소스", "잡곡밥"],
+      time: "22분",
+      keywords: ["저지방 고단백", "칼슘", "철분"],
+      growth: "닭가슴살 단백질과 두부 칼슘을 함께 담아 근육과 뼈 성장을 도와요.",
+      ingredients: [
+        { cat: "정육·수산", items: ["닭가슴살 300g"] },
+        { cat: "채소·두부", items: ["두부 1/2모", "양파 1/2개", "당근 1/3개", "대파 1대", "마늘 2쪽"] },
+        { cat: "유제품·기타", items: ["계란 1개", "빵가루 3큰술", "토마토소스 1/2컵", "잡곡쌀 2컵", "소금·후추·식용유"] }
+      ],
+      steps: [
+        "잡곡쌀 2컵으로 밥을 짓습니다.",
+        "닭가슴살은 잘게 다지고 두부는 물기를 꼭 짜서 함께 볼에 담습니다.",
+        "다진 양파·당근·마늘, 계란, 빵가루, 소금·후추를 넣고 치대어 동그랗게 빚습니다.",
+        "팬에 기름을 두르고 약중불에서 앞뒤로 8분씩 노릇하게 익힙니다.",
+        "토마토소스를 살짝 데워 위에 끼얹고 밥과 함께 냅니다."
+      ],
+      tip: "아이 손에 쥐기 좋은 크기로 빚으면 유하가 포크 없이도 잘 먹어요. 소스는 따로 담아 주세요."
+    },
+    {
+      id: "p-godeungeo-mu",
+      main: "고등어 무조림",
+      short: "고등어조림",
+      emoji: "🐟",
+      sides: ["시금치나물", "흰쌀밥"],
+      time: "25분",
+      keywords: ["오메가3", "DHA", "단백질"],
+      growth: "고등어 DHA·오메가3가 두뇌 발달을, 무와 시금치 철분이 혈색을 도와요.",
+      ingredients: [
+        { cat: "정육·수산", items: ["고등어 2토막 (손질된 것)"] },
+        { cat: "채소·두부", items: ["무 1/4개", "대파 1대", "양파 1/2개", "마늘 3쪽", "생강 1쪽", "시금치 1단"] },
+        { cat: "유제품·기타", items: ["간장 3큰술", "맛술 2큰술", "흰쌀 2컵", "참기름 1큰술", "참깨·소금"] }
+      ],
+      steps: [
+        "흰쌀 2컵으로 밥을 짓습니다.",
+        "고등어는 소금물에 10분 담가 비린맛을 빼고 물기를 닦습니다.",
+        "냄비에 물 400ml, 간장, 맛술, 마늘, 생강을 넣고 끓입니다.",
+        "무를 1cm 두께로 썰어 바닥에 깔고 고등어를 올려 중약불에서 15분 조립니다.",
+        "국물이 졸면 대파와 양파를 넣어 3분 더 익히고, 시금치는 데쳐 참기름·소금·참깨로 무칩니다."
+      ],
+      tip: "고등어 가시는 꼭 발라 유하 그릇에 담아 주세요. 간장은 아이용으로 한 번 더 묽게 조절해도 좋아요."
+    },
+    {
+      id: "p-miyeok-guk",
+      main: "소고기 미역국",
+      short: "미역국",
+      emoji: "🍲",
+      sides: ["감자채볶음", "흰쌀밥"],
+      time: "20분",
+      keywords: ["철분", "요오드", "단백질"],
+      growth: "소고기 철분과 미역 요오드가 성장기 혈액과 갑상선 건강을 챙겨요.",
+      ingredients: [
+        { cat: "정육·수산", items: ["소고기 국거리 200g"] },
+        { cat: "채소·두부", items: ["미역 1줌 (불린 것)", "감자 2개", "양파 1/2개", "당근 1/3개", "마늘 2쪽", "대파 1대"] },
+        { cat: "유제품·기타", items: ["국간장 2큰술", "참기름 1큰술", "흰쌀 2컵", "소금·후추·식용유"] }
+      ],
+      steps: [
+        "미역은 찬물에 10분 불려 물기를 빼고 먹기 좋게 썹니다.",
+        "냄비에 참기름을 두르고 소고기를 3분 볶다가 미역을 넣어 2분 더 볶습니다.",
+        "물 900ml를 붓고 국간장으로 간해 12분 끓입니다.",
+        "감자·양파·당근을 채 썰어 기름 두른 팬에 5분 볶고 소금·후추로 마무리합니다.",
+        "미역국에 대파와 마늘을 넣어 2분 더 끓여 냅니다."
+      ],
+      tip: "미역은 유하가 씹기 편하게 짧게 썰어 주세요. 감자채는 물에 5분 담갔다 볶으면 덜 부서져요."
+    },
+    {
+      id: "p-saeu-brocoli",
+      main: "새우 브로콜리 볶음",
+      short: "새우볶음",
+      emoji: "🍤",
+      sides: ["계란찜", "잡곡밥"],
+      time: "18분",
+      keywords: ["고단백", "비타민C", "아연"],
+      growth: "새우 단백질·아연과 브로콜리 비타민C가 면역과 성장을 함께 도와요.",
+      ingredients: [
+        { cat: "정육·수산", items: ["칵테일새우 250g"] },
+        { cat: "채소·두부", items: ["브로콜리 1/2송이", "양파 1/2개", "마늘 2쪽", "파프리카 1/2개", "계란 3개", "쪽파 약간"] },
+        { cat: "유제품·기타", items: ["굴소스 1큰술", "간장 1작은술", "잡곡쌀 2컵", "참기름 1큰술", "소금·후추·식용유"] }
+      ],
+      steps: [
+        "브로콜리는 한입 크기로 나눠 끓는 물에 1분 데칩니다.",
+        "계란 3개를 풀어 소금 간해 뚝배기에 붓고 약불에서 6분 찝니다.",
+        "팬에 기름과 마늘을 넣어 향을 내고 새우를 2분 볶습니다.",
+        "양파·파프리카·브로콜리를 넣고 굴소스와 간장으로 간하며 3분 볶습니다.",
+        "참기름을 두르고 쪽파를 뿌려 밥과 함께 냅니다."
+      ],
+      tip: "새우는 등쪽 내장을 빼면 잡내가 없어요. 브로콜리는 데친 뒤 찬물에 헹구면 색이 곱습니다."
+    },
+    {
+      id: "p-sunhan-dakgalbi",
+      main: "순한 닭갈비",
+      short: "순한닭갈비",
+      emoji: "🍗",
+      sides: ["상추쌈", "잡곡밥"],
+      time: "25분",
+      keywords: ["고단백", "비타민B", "셀레늄"],
+      growth: "닭다리살 단백질과 셀레늄이 근육과 면역을 튼튼하게 도와요.",
+      ingredients: [
+        { cat: "정육·수산", items: ["닭다리살 400g"] },
+        { cat: "채소·두부", items: ["양배추 1/4통", "양파 1개", "고구마 1개", "대파 1대", "마늘 3쪽", "상추 10장"] },
+        { cat: "유제품·기타", items: ["간장 3큰술", "설탕 1큰술", "맛술 2큰술", "고추장 1/2큰술 (선택)", "잡곡쌀 2컵", "참기름 1큰술"] }
+      ],
+      steps: [
+        "닭다리살은 한입 크기로 썰어 간장·맛술·마늘로 10분 재웁니다.",
+        "고구마와 양배추, 양파를 도톰하게 썰어 팬에 깔아 줍니다.",
+        "재운 닭고기를 올리고 물 100ml를 부어 뚜껑을 덮고 12분 익힙니다.",
+        "설탕과 고추장을 풀어 5분 더 조리며 국물을 끼얹습니다.",
+        "대파와 참기름을 두르고 상추에 싸 먹습니다."
+      ],
+      tip: "아이용은 고추장을 빼고 간장만으로 볶아 주세요. 고구마가 익으면 단맛이 나 유하가 잘 먹어요."
+    },
+    {
+      id: "p-dwaeji-beoseot",
+      main: "돼지안심 버섯볶음",
+      short: "돼지볶음",
+      emoji: "🥘",
+      sides: ["시래기된장국", "잡곡밥"],
+      time: "20분",
+      keywords: ["비타민B1", "고단백", "식이섬유"],
+      growth: "돼지안심 비타민B1이 에너지 대사를, 버섯 식이섬유가 장 건강을 도와요.",
+      ingredients: [
+        { cat: "정육·수산", items: ["돼지안심 350g"] },
+        { cat: "채소·두부", items: ["새송이버섯 2개", "표고버섯 3개", "양파 1/2개", "대파 1대", "마늘 2쪽", "시래기 150g", "두부 1/4모"] },
+        { cat: "유제품·기타", items: ["간장 2큰술", "굴소스 1큰술", "된장 1.5큰술", "잡곡쌀 2컵", "참기름 1큰술", "소금·후추·식용유"] }
+      ],
+      steps: [
+        "돼지안심은 결 반대로 얇게 썰어 소금·후추로 밑간합니다.",
+        "팬에 기름과 마늘을 두르고 고기를 3분 볶아 따로 덜어 둡니다.",
+        "버섯과 양파를 넣고 3분 볶다가 고기를 다시 넣고 간장·굴소스로 간합니다.",
+        "냄비에 시래기와 물 800ml, 된장을 풀어 10분 끓이고 두부와 대파를 넣어 3분 더 끓입니다.",
+        "볶음에 참기름을 두르고 밥과 함께 냅니다."
+      ],
+      tip: "버섯은 아이가 씹기 좋게 얇게 썰어 주세요. 시래기국은 된장을 적게 넣어 순하게 끓입니다."
+    },
+    {
+      id: "p-dubu-steak",
+      main: "치즈 두부 스테이크",
+      short: "두부스테이크",
+      emoji: "🧀",
+      sides: ["구운 버섯", "잡곡밥"],
+      time: "18분",
+      keywords: ["칼슘", "식물성 단백질", "비타민D"],
+      growth: "두부·치즈 칼슘과 버섯 비타민D가 뼈 성장을 돕는 조합이에요.",
+      ingredients: [
+        { cat: "채소·두부", items: ["두부 1모", "새송이버섯 2개", "양파 1/2개", "대파 1대", "마늘 2쪽", "계란 2개"] },
+        { cat: "유제품·기타", items: ["슬라이스 치즈 2장", "밀가루 2큰술", "간장 1큰술", "잡곡쌀 2컵", "올리브유·소금·후추"] }
+      ],
+      steps: [
+        "두부는 1.5cm 두께로 썰어 키친타월로 물기를 빼고 소금·후추를 뿌립니다.",
+        "두부에 밀가루를 얇게 묻히고 계란물을 입혀 팬에서 앞뒤 3분씩 굽습니다.",
+        "치즈를 올려 뚜껑을 덮고 1분 두어 녹입니다.",
+        "새송이버섯과 양파를 올리브유에 4분 구워 소금·후추로 간합니다.",
+        "간장을 살짝 두른 밥과 함께 담아 냅니다."
+      ],
+      tip: "두부 물기를 꼭 빼야 모양이 예쁘게 잡혀요. 유하 그릇엔 치즈를 반 장만 올려도 좋아요."
+    },
+    {
+      id: "p-dak-gamja",
+      main: "닭다리 감자조림",
+      short: "닭감자조림",
+      emoji: "🍲",
+      sides: ["오이무침", "흰쌀밥"],
+      time: "25분",
+      keywords: ["고단백", "칼륨", "비타민B"],
+      growth: "닭다리살 단백질과 감자 칼륨이 성장기 에너지와 근육을 채워 줘요.",
+      ingredients: [
+        { cat: "정육·수산", items: ["닭다리살 450g"] },
+        { cat: "채소·두부", items: ["감자 3개", "당근 1/2개", "양파 1개", "대파 1대", "마늘 3쪽", "오이 1개"] },
+        { cat: "유제품·기타", items: ["간장 4큰술", "맛술 2큰술", "설탕 1큰술", "흰쌀 2컵", "참기름·참깨·소금"] }
+      ],
+      steps: [
+        "닭다리살은 껍질을 제거하고 한입 크기로 썰어 끓는 물에 2분 데쳐 씻습니다.",
+        "냄비에 간장·맛술·설탕·마늘·물 300ml를 넣고 끓입니다.",
+        "닭고기와 감자·당근·양파를 넣고 중약불에서 15분 조립니다.",
+        "국물이 반으로 줄면 대파를 넣고 3분 더 졸입니다.",
+        "오이는 어슷썰어 소금에 5분 절였다가 참기름·참깨로 무칩니다."
+      ],
+      tip: "감자는 가장자리를 둥글게 다듬으면 부서지지 않아요. 유하 그릇엔 국물을 조금만 담아 주세요."
+    },
+    {
+      id: "p-yoneo-jumeokbap",
+      main: "연어 채소 주먹밥",
+      short: "연어주먹밥",
+      emoji: "🍙",
+      sides: ["맑은 미역국"],
+      time: "20분",
+      keywords: ["오메가3", "칼슘", "단백질"],
+      growth: "연어 오메가3와 미역 칼슘이 두뇌와 뼈를 함께 챙겨요.",
+      ingredients: [
+        { cat: "정육·수산", items: ["생연어 200g"] },
+        { cat: "채소·두부", items: ["당근 1/3개", "오이 1/2개", "쪽파 약간", "미역 1줌", "마늘 1쪽", "계란 1개"] },
+        { cat: "유제품·기타", items: ["찬밥 3공기", "참기름 1큰술", "국간장 1큰술", "소금·참깨·식용유"] }
+      ],
+      steps: [
+        "연어는 소금·후추를 뿌려 팬에 앞뒤 4분 구운 뒤 포크로 으깹니다.",
+        "당근과 오이는 잘게 다져 소금에 살짝 절였다가 물기를 짭니다.",
+        "따뜻한 밥에 연어·채소·참기름·소금·참깨를 넣고 고루 섞습니다.",
+        "한입 크기로 동글게 뭉쳐 주먹밥을 만듭니다.",
+        "불린 미역과 물 700ml, 국간장, 마늘을 넣고 8분 끕니다. 계란을 풀어 미역국을 마무리합니다."
+      ],
+      tip: "유하 손 크기에 맞춰 작게 뭉치면 간식처럼 잘 먹어요. 김을 감싸 주면 손에 덜 붙어요."
+    },
+    {
+      id: "p-kongnamul-bulgogi",
+      main: "콩나물 소불고기",
+      short: "콩나물불고기",
+      emoji: "🥩",
+      sides: ["상추쌈", "잡곡밥"],
+      time: "22분",
+      keywords: ["철분", "아연", "식이섬유"],
+      growth: "소고기 철분·아연과 콩나물 아스파라긴이 성장과 피로 회복을 도와요.",
+      ingredients: [
+        { cat: "정육·수산", items: ["소고기 불고기감 350g"] },
+        { cat: "채소·두부", items: ["콩나물 300g", "양파 1개", "대파 1대", "마늘 3쪽", "상추 10장"] },
+        { cat: "유제품·기타", items: ["간장 4큰술", "설탕 1.5큰술", "맛술 2큰술", "참기름 1큰술", "잡곡쌀 2컵", "참깨·후추"] }
+      ],
+      steps: [
+        "소고기는 간장·설탕·맛술·마늘·참기름에 15분 재웁니다.",
+        "팬에 콩나물을 깔고 재운 고기를 올린 뒤 물 150ml를 부어 뚜껑을 덮고 8분 익힙니다.",
+        "양파와 대파를 넣고 4분 더 볶으며 국물을 졸입니다.",
+        "참깨와 후추를 뿌려 마무리합니다.",
+        "상추에 고기와 콩나물을 올려 싸 먹습니다."
+      ],
+      tip: "고추 없이 간장 양념만으로도 충분히 맛있어요. 콩나물은 뚜껑을 열고 익혀야 비린내가 안 나요."
+    },
+    {
+      id: "p-meatball-pasta",
+      main: "토마토 미트볼 스파게티",
+      short: "미트볼파스타",
+      emoji: "🍝",
+      sides: ["그린 샐러드"],
+      time: "25분",
+      keywords: ["철분", "단백질", "라이코펜"],
+      growth: "소고기 미트볼 철분과 토마토 라이코펜이 혈액과 면역을 도와요.",
+      ingredients: [
+        { cat: "정육·수산", items: ["다진 소고기 300g"] },
+        { cat: "채소·두부", items: ["양파 1개", "마늘 3쪽", "당근 1/3개", "방울토마토 10개", "양상추 5장", "계란 1개"] },
+        { cat: "유제품·기타", items: ["스파게티면 300g", "토마토소스 2컵", "빵가루 3큰술", "파마산 치즈 약간", "올리브유·소금·후추"] }
+      ],
+      steps: [
+        "다진 소고기에 계란, 빵가루, 다진 양파·마늘, 소금·후추를 넣고 치대어 미트볼을 빚습니다.",
+        "올리브유를 두른 팬에 미트볼을 굴려 가며 6분 굽고 따로 덜어 둡니다.",
+        "같은 팬에 토마토소스와 방울토마토, 당근을 넣고 8분 끕입니다.",
+        "스파게티면은 소금물에 8분 삶아 소스에 넣고 2분 더 볶습니다.",
+        "미트볼을 올리고 치즈를 뿌려 냅니다. 양상추는 한입 크기로 찢어 샐러드로 냅니다."
+      ],
+      tip: "미트볼은 유하가 포크로 집기 좋게 작게 빚어 주세요. 소스가 튀지 않게 약불에서 천천히 끓입니다."
+    },
+    {
+      id: "p-sunhan-curry",
+      main: "순한 카레라이스",
+      short: "순한카레",
+      emoji: "🍛",
+      sides: ["오이 피클"],
+      time: "20분",
+      keywords: ["비타민A", "식이섬유", "탄수화물"],
+      growth: "당근·감자 비타민과 고기 단백질을 한 그릇에 담아 든든한 성장 에너지가 돼요.",
+      ingredients: [
+        { cat: "정육·수산", items: ["소고기 국거리 250g"] },
+        { cat: "채소·두부", items: ["감자 2개", "당근 1개", "양파 1개", "애호박 1/2개", "오이 1개", "마늘 2쪽"] },
+        { cat: "유제품·기타", items: ["순한 카레가루 4큰술", "우유 100ml", "흰쌀 2컵", "식용유·소금"] }
+      ],
+      steps: [
+        "소고기와 감자·당근·양파·애호박을 1.5cm 크기로 깍둑 썹니다.",
+        "냄비에 기름을 두르고 소고기를 3분 볶다가 채소를 넣어 4분 더 볶습니다.",
+        "물 700ml를 붓고 10분 끓입니다.",
+        "불을 줄이고 카레가루를 풀어 5분 끓인 뒤 우유를 넣어 부드럽게 마무리합니다.",
+        "밥에 카레를 끼얹고 오이 피클을 곁들입니다."
+      ],
+      tip: "카레가루는 아이용 순한맛으로, 우유를 넣으면 매운맛이 한결 부드러워져요."
+    }
+  ],
   calendar: [
     { year: 2026, month: 11 },
     { year: 2026, month: 12 }
-  ],
-  shopping: [
-    {
-      name: "정육·수산",
-      items: [
-        "생연어 3토막 (약 450g)",
-        "소고기 국거리 300g",
-        "닭안심 300g",
-        "돼지안심 400g",
-        "가자미 2마리 (손질된 것)",
-        "황태채 30g"
-      ]
-    },
-    {
-      name: "채소·두부",
-      items: [
-        "두부 1모",
-        "순두부 1봉",
-        "알배추 1통",
-        "애호박 1개",
-        "양파 2개",
-        "대파 2대",
-        "쪽파 1단",
-        "당근 1개",
-        "표고버섯 4개",
-        "새송이버섯 1개",
-        "팽이버섯 1봉",
-        "단호박 1/4쪽",
-        "레몬 1개",
-        "김 2장",
-        "마늘 1통",
-        "생강 1쪽"
-      ]
-    },
-    {
-      name: "유제품·기타",
-      items: [
-        "계란 1판 (20개)",
-        "슬라이스 치즈 1장",
-        "우유 200ml",
-        "된장",
-        "국간장",
-        "진간장",
-        "들깨가루",
-        "들기름",
-        "참기름",
-        "참깨",
-        "잡곡쌀 2컵분",
-        "쌀 4컵분",
-        "서리태(검은콩) 1/2컵",
-        "밀가루 (조금)",
-        "식용유·올리브유",
-        "소금·후추 (집에 없으면)"
-      ]
-    }
   ]
+};
+
+/* ══════════════════════════════════════════════════
+   KR_HOLIDAYS — 대한민국 공휴일 (2026 ~ 2027, 대체공휴일 포함)
+   달력에서 빨간 숫자와 공휴일 이름표로 보입니다.
+   새 해가 되면 "YYYY-MM-DD": "이름" 형식으로 덧붙여 주세요.
+   근거: 한국천문연구원 월력요항 · 「공휴일법」
+   ══════════════════════════════════════════════════ */
+var KR_HOLIDAYS = {
+  /* 2026 */
+  "2026-01-01": "신정",
+  "2026-02-16": "설 연휴",
+  "2026-02-17": "설날",
+  "2026-02-18": "설 연휴",
+  "2026-03-01": "삼일절",
+  "2026-03-02": "대체휴일",
+  "2026-05-01": "노동절",
+  "2026-05-05": "어린이날",
+  "2026-05-24": "부처님오신날",
+  "2026-05-25": "대체휴일",
+  "2026-06-03": "지방선거",
+  "2026-06-06": "현충일",
+  "2026-07-17": "제헌절",
+  "2026-08-15": "광복절",
+  "2026-08-17": "대체휴일",
+  "2026-09-24": "추석 연휴",
+  "2026-09-25": "추석",
+  "2026-09-26": "추석 연휴",
+  "2026-10-03": "개천절",
+  "2026-10-05": "대체휴일",
+  "2026-10-09": "한글날",
+  "2026-12-25": "성탄절",
+  /* 2027 */
+  "2027-01-01": "신정",
+  "2027-02-06": "설 연휴",
+  "2027-02-07": "설날",
+  "2027-02-08": "설 연휴",
+  "2027-02-09": "대체휴일",
+  "2027-03-01": "삼일절",
+  "2027-05-01": "노동절",
+  "2027-05-03": "대체휴일",
+  "2027-05-05": "어린이날",
+  "2027-05-13": "부처님오신날",
+  "2027-06-06": "현충일",
+  "2027-07-17": "제헌절",
+  "2027-07-19": "대체휴일",
+  "2027-08-15": "광복절",
+  "2027-08-16": "대체휴일",
+  "2027-09-14": "추석 연휴",
+  "2027-09-15": "추석",
+  "2027-09-16": "추석 연휴",
+  "2027-10-03": "개천절",
+  "2027-10-04": "대체휴일",
+  "2027-10-09": "한글날",
+  "2027-10-11": "대체휴일",
+  "2027-12-25": "성탄절",
+  "2027-12-27": "대체휴일"
 };
 </script>
 <style>
@@ -240,14 +530,8 @@ var MEAL_PLAN_DATA = {
   /* ── 헤더 ─────────────────────────────── */
   .hero{margin-bottom:22px}
   .hero-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
-  .hero h1{margin:0;font-size:22px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
-  .hero .sub{margin:5px 0 0;font-size:12px;color:var(--ink-3)}
-  .mascot-box{
-    flex:none;width:54px;height:54px;border-radius:16px;background:var(--pink-100);
-    display:flex;align-items:center;justify-content:center;gap:0;color:#C9899A;
-  }
-  .mascot-box svg{width:32px;height:32px}
-  .mascot-box .cat{width:26px;height:26px;margin-left:-5px;margin-top:8px;opacity:.85}
+  .hero h1{margin:0;font-size:23px;font-weight:700;letter-spacing:-.035em;color:var(--ink)}
+  .hero .sub{margin:6px 0 0;font-size:12px;color:var(--ink-3);letter-spacing:-.005em}
   .hero-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:12px;font-size:11.5px;color:var(--ink-2)}
   .hero-meta .sp{color:var(--pink-300)}
   .hero-actions{display:flex;gap:8px;margin-top:14px}
@@ -269,6 +553,30 @@ var MEAL_PLAN_DATA = {
   .section-head .cap{font-size:11px;color:var(--ink-3);flex:none}
   .hint{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--ink-3);margin:12px 4px 0}
   .hint .ico{width:12px;height:12px;flex:none;color:var(--pink-300)}
+
+  /* ── 식단 · 장보기 한 페이지 ── */
+  .jump-row{
+    position:sticky;top:0;z-index:20;display:flex;gap:6px;
+    padding:6px 0 10px;margin:-6px 0 6px;
+    background:linear-gradient(var(--bg) 74%, rgba(255,249,250,0));
+  }
+  .jump-pill{
+    font-family:inherit;font-size:11.5px;font-weight:600;color:var(--accent-deep);background:#fff;
+    border:1px solid var(--pink-200);border-radius:999px;padding:7px 13px;
+    display:inline-flex;align-items:center;gap:5px;cursor:pointer;
+  }
+  .jump-pill .ico{width:13px;height:13px;color:var(--accent)}
+  .jump-pill:active{background:var(--pink-100)}
+  .jump-target{scroll-margin-top:64px}
+  .split{height:1px;background:var(--line);margin:26px 2px 22px}
+  .week-link{
+    width:100%;display:flex;align-items:center;justify-content:space-between;gap:8px;
+    font-family:inherit;font-size:12.5px;font-weight:600;color:var(--accent-deep);
+    background:var(--pink-100);border:1px solid #FBEAEE;border-radius:14px;
+    padding:13px 15px;margin-top:16px;cursor:pointer;text-align:left;
+  }
+  .week-link .ico{width:14px;height:14px;flex:none;color:var(--accent)}
+  .week-link:active{background:var(--pink-200)}
 
   /* ── 주간 식단 ─────────────────────────── */
   .meal-card{
@@ -294,32 +602,122 @@ var MEAL_PLAN_DATA = {
   }
   .week-memo .ic{font-size:12px;line-height:1}
 
-  /* ── 달력 ─────────────────────────────── */
-  .cal-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px 12px 12px;margin-bottom:12px}
-  .cal-head{display:flex;align-items:baseline;justify-content:space-between;padding:0 4px 8px}
-  .cal-head h3{margin:0;font-size:13.5px;font-weight:600;letter-spacing:-.01em}
-  .cal-head .count{font-size:10.5px;color:var(--ink-3)}
-  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
-  .cal-dow{text-align:center;font-size:10px;font-weight:500;color:var(--ink-3);padding:2px 0 6px}
-  .cal-dow.sun{color:#D89AA9}
-  .cal-cell{aspect-ratio:1/1;position:relative;display:flex;align-items:center;justify-content:center}
+  /* ── 달력 (네이버 캘린더 스타일) ─────────── */
+  .cal-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:4px 9px 10px;margin-bottom:12px}
+  .cal-bar{display:flex;align-items:center;gap:2px;padding:7px 1px 6px}
+  .cal-nav-btn{width:28px;height:28px;flex:none;display:grid;place-items:center;background:none;border:0;border-radius:8px;color:var(--ink-2);cursor:pointer;padding:0}
+  .cal-nav-btn .ico{width:15px;height:15px}
+  .cal-nav-btn .ico.flip{transform:scaleX(-1)}
+  .cal-nav-btn:active{background:var(--pink-50)}
+  .cal-title{margin:0;font-size:15px;font-weight:700;letter-spacing:-.02em;color:var(--ink)}
+  .cal-bar-sp{flex:1}
+  .today-btn{flex:none;font-family:inherit;font-size:11px;font-weight:600;color:var(--ink-2);background:#fff;border:1px solid var(--line);border-radius:999px;padding:5px 11px;cursor:pointer}
+  .today-btn:active{background:var(--pink-50)}
+  .cal-grid{display:grid;grid-template-columns:repeat(7,1fr)}
+  .cal-dow{text-align:center;font-size:10px;font-weight:600;color:var(--ink-3);padding:3px 0 5px}
+  .cal-dow.sun{color:#D9798E}
+  .cal-dow.sat{color:#7E93A8}
+  .cal-cell{display:flex;align-items:stretch;min-height:62px}
   .cal-cell.blank{visibility:hidden}
   .cal-day{
-    width:100%;height:100%;border:0;background:none;border-radius:10px;
-    font-family:inherit;font-size:12.5px;color:var(--ink-2);
-    display:flex;align-items:center;justify-content:center;position:relative;
-    cursor:pointer;padding:0;
+    flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;gap:1px;
+    background:none;border:0;border-radius:9px;padding:3px 1px 4px;font-family:inherit;cursor:pointer;
   }
-  .cal-day.sun{color:#D89AA9}
-  .cal-day.has-meal{background:var(--pink-100);color:var(--accent-deep);font-weight:600}
-  .cal-day.is-today{box-shadow:inset 0 0 0 1px var(--pink-300)}
   .cal-day:active{background:var(--pink-50)}
-  .cal-day .dot{position:absolute;bottom:6px;width:3px;height:3px;border-radius:50%;background:var(--accent)}
-  .cal-day .memo{position:absolute;top:3px;right:3px;font-size:8px;line-height:1}
-  .cal-legend{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:12px 4px 0;font-size:10.5px;color:var(--ink-3)}
-  .cal-legend span{display:flex;align-items:center;gap:4px}
-  .cal-legend .lg-dot{width:3px;height:3px;border-radius:50%;background:var(--accent)}
-  .cal-legend .lg-meal{width:14px;height:14px;border-radius:5px;background:var(--pink-100)}
+  .cal-day .dnum{
+    width:21px;height:21px;flex:none;border-radius:50%;
+    display:grid;place-items:center;font-size:11.5px;line-height:1;color:var(--ink);
+  }
+  .cal-day.sun .dnum{color:#D9798E}
+  .cal-day.sat .dnum{color:#7E93A8}
+  .cal-day.holi .dnum{color:#D94B5A;font-weight:600}
+  .cal-day.is-today .dnum{background:var(--accent);color:#fff;font-weight:600}
+  .cal-day.is-sel{background:var(--pink-100);box-shadow:inset 0 0 0 1px var(--pink-300)}
+  .cal-day.is-sel .dnum{color:var(--accent-deep)}
+  .cal-day.is-sel.is-today .dnum{color:#fff}
+  .cal-day .lun{font-size:6.5px;line-height:1.2;color:#CDBCC1;letter-spacing:-.02em}
+  .cal-day .chips{display:flex;flex-direction:column;gap:1px;width:100%;margin-top:1px}
+  .chip{
+    display:block;width:100%;font-size:7.4px;line-height:1.5;font-weight:600;
+    border-radius:3px;padding:0 2px;text-align:center;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .chip.meal{background:var(--pink-100);color:var(--accent-deep)}
+  .chip.memo{background:var(--mint-50);color:#4F8375;font-weight:500}
+  .chip.holi{background:#FDECEE;color:#D94B5A}
+  .cal-day.is-sel .chip.meal,.cal-day.is-sel .chip.holi{background:#fff}
+
+  /* ── 선택 날짜 패널 ───────────────────── */
+  .day-panel{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:13px 13px 8px;margin-bottom:12px}
+  .dp-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:9px}
+  .dp-head h3{margin:0;font-size:13px;font-weight:700;letter-spacing:-.01em;color:var(--ink)}
+  .dp-tags{display:flex;align-items:center;gap:4px;flex:none}
+  .dp-holi{font-size:9.5px;font-weight:600;color:#D94B5A;background:#FDECEE;border-radius:5px;padding:2px 6px}
+  .dp-cap{font-size:9.5px;font-weight:600;color:#fff;background:var(--accent);border-radius:5px;padding:2px 6px}
+  .dp-lun{font-size:9.5px;color:var(--ink-3)}
+  .dp-sub{font-size:10px;font-weight:600;color:var(--ink-3);margin:12px 2px 6px}
+  .dp-add{
+    width:100%;display:flex;align-items:center;justify-content:center;gap:5px;
+    font-family:inherit;font-size:11.5px;color:var(--ink-3);background:var(--pink-50);
+    border:1px dashed var(--pink-200);border-radius:10px;padding:9px;cursor:pointer;margin-bottom:4px;
+  }
+  .dp-add .ico{width:12px;height:12px;color:var(--accent)}
+  .dp-item{display:flex;align-items:flex-start;gap:9px;padding:8px 2px;border-bottom:1px solid #FBF3F5;margin-bottom:2px}
+  .dp-emo{font-size:13px;line-height:1.35}
+  .dp-body{flex:1;min-width:0}
+  .dp-lab{font-size:10px;font-weight:600;color:var(--accent-deep)}
+  .dp-txt{font-size:12.5px;color:var(--ink);line-height:1.4;word-break:keep-all}
+  .dp-mini{flex:none;font-family:inherit;font-size:10.5px;color:var(--ink-3);background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px 8px;cursor:pointer}
+  .dp-empty{margin:6px 2px 10px;font-size:11.5px;line-height:1.6;color:var(--ink-3);text-align:center}
+  .dp-meal,.day-panel .meal-card{background:var(--pink-50);border-color:#FBEAEE;margin:0 0 6px}
+
+  /* ── 유치원 챙길 것 ───────────────────── */
+  .kid-card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:12px 13px 6px;margin-bottom:12px}
+  .kid-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
+  .kid-head h3{margin:0;font-size:12.5px;font-weight:700;letter-spacing:-.01em;display:flex;align-items:center;gap:5px}
+  .kid-head h3 .ico{width:13px;height:13px;color:var(--accent)}
+  .kid-count{font-size:10px;font-weight:600;color:var(--accent-deep);background:var(--pink-100);border-radius:999px;padding:1px 6px;margin-left:2px}
+  .kid-add{flex:none;font-family:inherit;font-size:10.5px;font-weight:600;color:var(--ink-3);background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 9px;cursor:pointer}
+  .kid-add:active{background:var(--pink-50)}
+  .kid-row{display:flex;align-items:center;gap:4px;border-bottom:1px solid #FBF3F5}
+  .kid-row:last-child{border-bottom:0}
+  .kid-item{flex:1;min-width:0;display:flex;align-items:center;gap:8px;padding:8px 0;cursor:pointer}
+  .kid-item input{position:absolute;opacity:0;width:0;height:0}
+  .kid-item .txt{font-size:11.8px;line-height:1.45;color:var(--ink);word-break:keep-all}
+  .kid-item.on .txt{color:var(--ink-3);text-decoration:line-through}
+  .kid-del{flex:none;width:22px;height:22px;display:grid;place-items:center;background:none;border:0;border-radius:6px;color:#CFBFC4;cursor:pointer;padding:0}
+  .kid-del .ico{width:11px;height:11px}
+  .kid-del:active{background:var(--pink-50);color:var(--accent-deep)}
+  .kid-empty{margin:8px 2px 10px;font-size:11px;color:var(--ink-3);text-align:center}
+  .kid-form{display:flex;gap:6px;margin:4px 0 8px}
+  .kid-form .memo-input{flex:1;min-width:0}
+  .kid-form .btn-primary{width:auto;padding:10px 14px;font-size:12px}
+
+  /* ── 주간 도구 · 메뉴 바꾸기 ─────────────── */
+  .week-tools{display:flex;gap:6px;margin:0 2px 10px}
+  .btn-refresh{
+    flex:1;display:flex;align-items:center;justify-content:center;gap:5px;
+    font-family:inherit;font-size:11.5px;font-weight:600;color:var(--accent-deep);
+    background:var(--pink-100);border:1px solid #FBEAEE;border-radius:10px;padding:9px 10px;cursor:pointer;
+  }
+  .btn-refresh .ico{width:12px;height:12px}
+  .btn-refresh:active{background:var(--pink-200)}
+  .btn-plain{flex:none;font-family:inherit;font-size:11px;color:var(--ink-3);background:#fff;border:1px solid var(--line);border-radius:10px;padding:9px 12px;cursor:pointer}
+  .btn-plain:active{background:var(--pink-50)}
+  .meal-foot{display:flex;justify-content:flex-end;margin-top:5px}
+  .shuffle-btn{
+    display:inline-flex;align-items:center;gap:3px;font-family:inherit;font-size:9.8px;font-weight:600;
+    color:var(--accent-deep);background:#fff;border:1px solid var(--pink-200);border-radius:999px;
+    padding:4px 8px;cursor:pointer;
+  }
+  .shuffle-btn .ico{width:10px;height:10px}
+  .shuffle-btn:active{background:var(--pink-100)}
+  .thumb.tile{display:grid;place-items:center;font-size:30px;line-height:1;background:var(--pink-50)}
+  .mult{font-style:normal;font-size:9.5px;font-weight:600;color:var(--accent-deep);background:var(--pink-100);border-radius:4px;padding:0 4px;margin-left:3px}
+  .sheet-tile{
+    display:none;width:100%;aspect-ratio:16/10;border-radius:14px;background:var(--pink-50);
+    align-items:center;justify-content:center;font-size:54px;line-height:1;
+  }
 
   /* ── 장보기 ───────────────────────────── */
   .progress-card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 15px 13px}
@@ -406,7 +804,6 @@ var MEAL_PLAN_DATA = {
   .rec-del{flex:none;width:26px;height:26px;border-radius:8px;border:1px solid var(--line);background:#fff;color:#B7A6AB;display:grid;place-items:center;cursor:pointer}
   .rec-del .ico{width:12px;height:12px}
   .empty{padding:16px 8px 14px;text-align:center;font-size:11.5px;color:var(--ink-3);line-height:1.65}
-  .empty svg{width:46px;height:46px;display:block;margin:0 auto 6px;color:#DDB3BE}
 
   /* ── 탭바 ─────────────────────────────── */
   .tabbar{
@@ -519,27 +916,6 @@ var MEAL_PLAN_DATA = {
 <!-- 아이콘 심볼 -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <defs>
-    <!-- 미니멀 라인 토끼 -->
-    <symbol id="i-rabbit" viewBox="0 0 64 64">
-      <g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M24.5 27c-2.6-4.4-3.8-9.6-2.6-14.2.5-1.9 2.9-2.1 3.7-.3 1.7 3.5 2.7 7.9 2.9 11.9"/>
-        <path d="M39.5 27c2.6-4.4 3.8-9.6 2.6-14.2-.5-1.9-2.9-2.1-3.7-.3-1.7 3.5-2.7 7.9-2.9 11.9"/>
-        <path d="M32 24.2c7.6 0 12.7 5.5 12.7 12.1S39.6 48.4 32 48.4s-12.7-5.5-12.7-12.1S24.4 24.2 32 24.2Z"/>
-        <path d="M27.4 35.2h.01M36.6 35.2h.01" stroke-width="2.8"/>
-        <path d="M32 39.2v2.1"/>
-        <path d="M29.4 43.2c1.5 1.4 3.7 1.4 5.2 0"/>
-      </g>
-    </symbol>
-    <!-- 미니멀 라인 고양이 -->
-    <symbol id="i-cat" viewBox="0 0 64 64">
-      <g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M19 27.5 20.6 16l9 6.9M45 27.5 43.4 16l-9 6.9"/>
-        <path d="M32 22.4c7.4 0 12.6 5.2 12.6 11.7S39.4 45.8 32 45.8s-12.6-5.2-12.6-11.7S24.6 22.4 32 22.4Z"/>
-        <path d="M27.6 32.8h.01M36.4 32.8h.01" stroke-width="2.8"/>
-        <path d="M30.9 37.1 32 38l1.1-.9"/>
-        <path d="M14.6 34.4h-4M14.6 38.4h-4M49.4 34.4h4M49.4 38.4h4"/>
-      </g>
-    </symbol>
     <symbol id="i-bowl" viewBox="0 0 24 24">
       <g fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
         <path d="M3.4 11.2h17.2a8.6 8.6 0 0 1-17.2 0Z"/>
@@ -619,12 +995,8 @@ var MEAL_PLAN_DATA = {
   <header class="hero">
     <div class="hero-top">
       <div>
-        <h1 id="heroTitle">유하네 식단</h1>
-        <p class="sub" id="heroSub">우리 가족 건강 저녁</p>
-      </div>
-      <div class="mascot-box" aria-hidden="true">
-        <svg><use href="#i-rabbit"/></svg>
-        <svg class="cat"><use href="#i-cat"/></svg>
+        <h1 id="heroTitle">유하네</h1>
+        <p class="sub" id="heroSub">우리 가족의 한 주</p>
       </div>
     </div>
     <div class="hero-meta">
@@ -638,50 +1010,88 @@ var MEAL_PLAN_DATA = {
     </div>
   </header>
 
-  <!-- 주간 식단 -->
-  <section class="view active" id="view-week">
-    <div class="section-head">
-      <h2>이번 주 저녁 식단</h2>
-      <span class="cap" id="weekCap">월 ~ 금 · 5일</span>
-    </div>
-    <div id="weekMemos"></div>
-    <div id="mealCards"></div>
-    <p class="hint"><svg class="ico"><use href="#i-sparkle"/></svg>카드를 누르면 3인분 재료와 조리 순서가 열려요</p>
-  </section>
-
-  <!-- 달력 -->
-  <section class="view" id="view-cal">
-    <div class="section-head">
-      <h2>식단 달력</h2>
-      <span class="cap">11월 · 12월</span>
-    </div>
-    <div id="calMonths"></div>
-    <div class="cal-legend">
-      <span><i class="lg-meal"></i>식단 있는 날</span>
-      <span>✈️ 여행·외출 메모</span>
-    </div>
-    <p class="hint"><svg class="ico"><use href="#i-calendar"/></svg>날짜를 누르면 그날 식단과 메모를 함께 볼 수 있어요</p>
-  </section>
-
-  <!-- 장보기 -->
-  <section class="view" id="view-shop">
-    <div class="section-head">
-      <h2>장보기 체크리스트</h2>
-      <span class="cap">3인분 · 5일 기준</span>
-    </div>
-    <div class="progress-card">
-      <div class="progress-top">
-        <span class="label">담은 재료</span>
-        <span class="num"><b id="progressDone">0</b> / <span id="progressTotal">0</span>개</span>
+  <!-- 달력 (첫 화면 · 유하네 메인) -->
+  <section class="view active" id="view-cal">
+    <div class="kid-card">
+      <div class="kid-head">
+        <h3><svg class="ico"><use href="#i-check"/></svg>유치원 챙길 것<span class="kid-count" id="kidCount">0/5</span></h3>
+        <button class="kid-add" id="kidAdd" type="button">+ 추가</button>
       </div>
-      <div class="progress-track"><span class="progress-fill" id="progressFill"></span></div>
-      <p class="progress-msg" id="progressMsg">장바구니를 하나씩 채워 볼까요?</p>
+      <div id="kidList"></div>
+      <form class="kid-form" id="kidForm" hidden>
+        <input class="memo-input" id="kidInput" type="text" maxlength="60" placeholder="예: 우유팩 챙겨 가기">
+        <button class="btn-primary small" type="submit">추가</button>
+      </form>
     </div>
-    <div id="shopCats"></div>
-    <div class="shop-actions">
-      <button class="btn-secondary" id="resetBtn" type="button"><svg class="ico"><use href="#i-reset"/></svg>체크 초기화</button>
+
+    <div class="cal-card">
+      <div class="cal-bar">
+        <button class="cal-nav-btn" id="calPrev" type="button" aria-label="이전 달"><svg class="ico flip"><use href="#i-chevron"/></svg></button>
+        <h3 class="cal-title" id="calTitle">2026년 11월</h3>
+        <button class="cal-nav-btn" id="calNext" type="button" aria-label="다음 달"><svg class="ico"><use href="#i-chevron"/></svg></button>
+        <span class="cal-bar-sp"></span>
+        <button class="today-btn" id="calToday" type="button">오늘</button>
+      </div>
+      <div class="cal-grid" id="calMonths"></div>
     </div>
-    <p class="foot-note">체크 상태는 이 기기에만 저장돼요.<br>다음 주 식단도 말씀 주시면 새로 올려드릴게요.</p>
+
+    <div class="day-panel" id="dayPanel">
+      <div class="dp-head">
+        <h3 id="dpDate">—</h3>
+        <span class="dp-tags" id="dpTags"></span>
+      </div>
+      <div id="dpList"></div>
+    </div>
+
+    <p class="hint"><svg class="ico"><use href="#i-calendar"/></svg>날짜를 누르면 아래에 그날 일정과 저녁 식단이 보여요</p>
+    <button class="week-link" id="goMeal" type="button">
+      <span class="wl-txt">이번 주 식단 · 장보기 보기</span>
+      <svg class="ico"><use href="#i-chevron"/></svg>
+    </button>
+  </section>
+
+  <!-- 식단 · 장보기 (한 페이지) -->
+  <section class="view" id="view-meal">
+    <div class="jump-row">
+      <button class="jump-pill" type="button" data-jump="mealSection"><svg class="ico"><use href="#i-bowl"/></svg>식단</button>
+      <button class="jump-pill" type="button" data-jump="shopSection"><svg class="ico"><use href="#i-basket"/></svg>장보기</button>
+    </div>
+
+    <div id="mealSection" class="jump-target">
+      <div class="section-head">
+        <h2>이번 주 저녁 식단</h2>
+        <span class="cap" id="weekCap">월 ~ 금 · 5일</span>
+      </div>
+      <div class="week-tools">
+        <button class="btn-refresh" id="shuffleWeek" type="button"><svg class="ico"><use href="#i-reset"/></svg>식단 새로 추천</button>
+        <button class="btn-plain" id="resetPlan" type="button">기본 식단</button>
+      </div>
+      <div id="weekMemos"></div>
+      <div id="mealCards"></div>
+      <p class="hint"><svg class="ico"><use href="#i-sparkle"/></svg>카드를 누르면 3인분 재료와 조리 순서가 열려요</p>
+    </div>
+
+    <div class="split" aria-hidden="true"></div>
+
+    <div id="shopSection" class="jump-target">
+      <div class="section-head">
+        <h2>장보기 체크리스트</h2>
+        <span class="cap">3인분 · 5일 기준</span>
+      </div>
+      <div class="progress-card">
+        <div class="progress-top">
+          <span class="label">담은 재료</span>
+          <span class="num"><b id="progressDone">0</b> / <span id="progressTotal">0</span>개</span>
+        </div>
+        <div class="progress-track"><span class="progress-fill" id="progressFill"></span></div>
+        <p class="progress-msg" id="progressMsg">장바구니를 하나씩 채워 볼까요?</p>
+      </div>
+      <div id="shopCats"></div>
+      <div class="shop-actions">
+        <button class="btn-secondary" id="resetBtn" type="button"><svg class="ico"><use href="#i-reset"/></svg>체크 초기화</button>
+      </div>
+      <p class="foot-note">체크 상태는 이 기기에만 저장돼요.<br>다음 주 식단도 말씀 주시면 새로 올려드릴게요.</p>
+    </div>
   </section>
 
   <!-- 키 성장표 -->
@@ -727,17 +1137,14 @@ var MEAL_PLAN_DATA = {
 <!-- 하단 탭 -->
 <nav class="tabbar" aria-label="메뉴">
   <div class="tabbar-inner">
-    <button class="tab active" data-view="week" type="button">
-      <svg class="ico"><use href="#i-bowl"/></svg><span>주간 식단</span>
-    </button>
-    <button class="tab" data-view="cal" type="button">
+    <button class="tab active" data-view="cal" type="button">
       <svg class="ico"><use href="#i-calendar"/></svg><span>달력</span>
     </button>
-    <button class="tab" data-view="shop" type="button">
-      <svg class="ico"><use href="#i-basket"/></svg><span>장보기</span>
+    <button class="tab" data-view="meal" type="button">
+      <svg class="ico"><use href="#i-bowl"/></svg><span>식단·장보기</span>
     </button>
     <button class="tab" data-view="grow" type="button">
-      <svg class="ico"><use href="#i-chart"/></svg><span>키 성장표</span>
+      <svg class="ico"><use href="#i-chart"/></svg><span>성장표</span>
     </button>
   </div>
 </nav>
@@ -755,6 +1162,7 @@ var MEAL_PLAN_DATA = {
 
     <div id="mealBlock">
       <img class="sheet-img" id="sheetImg" alt="">
+      <div class="sheet-tile" id="sheetTile" aria-hidden="true"></div>
       <p class="sheet-sides" id="sheetSides"></p>
       <p class="sheet-meta" id="sheetMeta"></p>
       <div class="note-box">
@@ -851,10 +1259,10 @@ var MEAL_IMAGES = {
   "use strict";
   const DATA = (typeof MEAL_PLAN_DATA !== "undefined") ? MEAL_PLAN_DATA : window.MEAL_PLAN_DATA;
   const IMG = (typeof MEAL_IMAGES !== "undefined") ? MEAL_IMAGES : (window.MEAL_IMAGES || {});
+  const BRAND = DATA.brand || DATA.appName;
   const SHOP_KEY = "yuhane-meal-shopping-" + DATA.weekId;
   const MEMO_KEY = "yuhane-cal-memos-v1";
   const GROW_KEY = "yuhane-growth-v1";
-  const TAB_KEY = "yuhane-meal-tab";
 
   const $ = (s, r) => (r || document).querySelector(s);
   const $$ = (s, r) => Array.prototype.slice.call((r || document).querySelectorAll(s));
@@ -898,9 +1306,68 @@ var MEAL_IMAGES = {
     etc: { icon: "📌", label: "외출·기타" }
   };
 
+  /* ── 공휴일 ── */
+  const HOLI = (typeof KR_HOLIDAYS !== "undefined" && KR_HOLIDAYS) ? KR_HOLIDAYS : {};
+  const holiOf = iso => HOLI[iso] || "";
+
+  /* ── 음력 (Intl chinese 달력, 실패하면 조용히 생략) ── */
+  const LUN_FMT = (function(){
+    try{
+      if(typeof Intl === "undefined" || !Intl.DateTimeFormat) return null;
+      const f = new Intl.DateTimeFormat("ko-KR", { calendar: "chinese", month: "numeric", day: "numeric", timeZone: "Asia/Seoul" });
+      const probe = f.formatToParts(new Date(Date.UTC(2026, 0, 1, 12)));
+      const has = t => probe.some(p => p.type === t);
+      return (has("month") && has("day")) ? f : null;
+    }catch(e){
+      return null;
+    }
+  })();
+
+  const lunCache = {};
+  function lunarOf(iso){
+    if(!LUN_FMT) return null;
+    if(Object.prototype.hasOwnProperty.call(lunCache, iso)) return lunCache[iso];
+    let out = null;
+    try{
+      const p = String(iso).split("-");
+      const parts = LUN_FMT.formatToParts(new Date(Date.UTC(+p[0], +p[1] - 1, +p[2], 12)));
+      let m = "", d = "";
+      parts.forEach(x => { if(x.type === "month") m = x.value; else if(x.type === "day") d = x.value; });
+      if(/^\d{1,2}$/.test(m) && /^\d{1,2}$/.test(d)) out = { m: +m, d: +d };
+    }catch(e){ out = null; }
+    lunCache[iso] = out;
+    return out;
+  }
+
+  /* ── 식단 풀 · 이번 주 계획 ── */
+  const PLAN_KEY = "yuhane-meal-plan-" + DATA.weekId;
+  const SLOT_IDS = (DATA.days || []).map(d => d.id);
+  const MEAL_BY_KEY = {};
+  (DATA.days || []).forEach(d => { MEAL_BY_KEY[d.id] = d; });
+  (DATA.pool || []).forEach(p => { MEAL_BY_KEY[p.id] = p; });
+  const ALL_MEALS = (DATA.days || []).concat(DATA.pool || []);
+
+  const savedPlan = store.get(PLAN_KEY, null);
+  let plan = SLOT_IDS.map((def, i) => (Array.isArray(savedPlan) && MEAL_BY_KEY[savedPlan[i]]) ? savedPlan[i] : def);
+
+  let days = [];
   const dayById = {};
   const dayByDate = {};
-  DATA.days.forEach(d => { dayById[d.id] = d; dayByDate[d.date] = d; });
+  function applyPlan(){
+    days = (DATA.days || []).map((slot, i) => {
+      const m = MEAL_BY_KEY[plan[i]] || slot;
+      return {
+        id: m.id, slotId: slot.id, date: slot.date, dow: slot.dow, theme: slot.theme,
+        main: m.main, short: m.short, sides: m.sides, time: m.time, img: m.img, emoji: m.emoji,
+        keywords: m.keywords, growth: m.growth, ingredients: m.ingredients, steps: m.steps, tip: m.tip
+      };
+    });
+    Object.keys(dayById).forEach(k => { delete dayById[k]; });
+    Object.keys(dayByDate).forEach(k => { delete dayByDate[k]; });
+    days.forEach(d => { dayById[d.slotId] = d; dayByDate[d.date] = d; });
+  }
+  applyPlan();
+  const savePlan = () => store.set(PLAN_KEY, plan);
 
   /* ── 헤더 ── */
   document.title = DATA.appName;
@@ -913,9 +1380,142 @@ var MEAL_IMAGES = {
   /* ── 상태 ── */
   let checked = store.get(SHOP_KEY, []);
   if(!Array.isArray(checked)) checked = [];
-  const itemId = (ci, ii) => ci + "-" + ii;
-  const allItems = [];
-  DATA.shopping.forEach((c, ci) => c.items.forEach((it, ii) => allItems.push(itemId(ci, ii))));
+
+  const itemKey = (cat, text) => cat + "|" + text;
+  let shopCats = [];
+  let allItems = [];
+  function buildShopping(){
+    const cats = [];
+    const map = {};
+    days.forEach(d => (d.ingredients || []).forEach(g => {
+      if(!g || !g.items || !g.items.length) return;
+      let c = map[g.cat];
+      if(!c){ c = { name: g.cat, items: [] }; map[g.cat] = c; cats.push(c); }
+      g.items.forEach(txt => {
+        const key = itemKey(g.cat, txt);
+        let hit = null;
+        for(let i = 0; i < c.items.length; i++){ if(c.items[i].key === key){ hit = c.items[i]; break; } }
+        if(hit) hit.n += 1;
+        else c.items.push({ text: txt, n: 1, key: key });
+      });
+    }));
+    shopCats = cats;
+    allItems = [];
+    cats.forEach(c => c.items.forEach(it => allItems.push(it.key)));
+  }
+  buildShopping();
+
+  /* ── 유치원 챙길 것 ── */
+  const KID_KEY = "yuhane-kidnote-v1";
+  const KID_SEED = [
+    "보조가방 대여도서 반납 (매주 화요일까지)",
+    "영어 플래시카드 6호 집에서 함께 하기",
+    "선택형 심화영어 숙제 화일에 넣어 보내기",
+    "11월 말 아침방송 대본 연습하기",
+    "등원 시 마스크 챙기기"
+  ];
+  let kidItems = store.get(KID_KEY, null);
+  if(!Array.isArray(kidItems)){
+    kidItems = KID_SEED.map((t, i) => ({ id: "k" + i, text: t, done: false }));
+  }else{
+    kidItems = kidItems
+      .filter(k => k && typeof k.text === "string" && k.text)
+      .map((k, i) => ({ id: k.id ? String(k.id) : ("k" + i), text: String(k.text).slice(0, 60), done: !!k.done }));
+  }
+  const saveKids = () => store.set(KID_KEY, kidItems);
+
+  /* ── 메뉴 바꾸기 ── */
+  function pickMeal(exclude){
+    const cand = ALL_MEALS.filter(m => exclude.indexOf(m.id) === -1);
+    if(!cand.length) return null;
+    return cand[Math.floor(Math.random() * cand.length)].id;
+  }
+  function refreshAll(){
+    savePlan();
+    applyPlan();
+    buildShopping();
+    renderWeek();
+    renderShop();
+    renderCalendar();
+  }
+  function shuffleSlot(slotId){
+    const i = SLOT_IDS.indexOf(slotId);
+    if(i < 0) return;
+    const pick = pickMeal(plan.slice());
+    if(!pick) return;
+    plan[i] = pick;
+    refreshAll();
+    toast(MEAL_BY_KEY[pick].main + " 메뉴로 바꿨어요");
+  }
+  function shuffleWeek(){
+    const next = [];
+    const used = [];
+    SLOT_IDS.forEach((slot, i) => {
+      const cand = ALL_MEALS.filter(m => used.indexOf(m.id) === -1 && m.id !== plan[i]);
+      const pick = cand.length ? cand[Math.floor(Math.random() * cand.length)].id : plan[i];
+      next.push(pick);
+      used.push(pick);
+    });
+    plan = next;
+    refreshAll();
+    toast("이번 주 식단을 새로 추천했어요");
+  }
+  function shuffleFrom(e){
+    const btn = e.target.closest("[data-shuffle]");
+    if(!btn) return false;
+    shuffleSlot(btn.getAttribute("data-shuffle"));
+    return true;
+  }
+  $("#shuffleWeek").addEventListener("click", shuffleWeek);
+  $("#resetPlan").addEventListener("click", () => {
+    if(!window.confirm("이번 주 식단을 처음 식단으로 되돌릴까요?")) return;
+    plan = SLOT_IDS.slice();
+    refreshAll();
+    toast("처음 식단으로 되돌렸어요");
+  });
+
+  /* ── 유치원 목록 조작 ── */
+  $("#kidAdd").addEventListener("click", () => {
+    const f = $("#kidForm");
+    f.hidden = false;
+    f.style.display = "flex";
+    $("#kidInput").focus();
+  });
+  $("#kidForm").addEventListener("submit", e => {
+    e.preventDefault();
+    const inp = $("#kidInput");
+    const txt = String(inp.value || "").trim();
+    if(!txt){ inp.focus(); return; }
+    kidItems.push({ id: "k" + uid(), text: txt.slice(0, 60), done: false });
+    saveKids();
+    renderKids();
+    inp.value = "";
+    $("#kidForm").hidden = true;
+    $("#kidForm").style.display = "none";
+    toast("챙길 것을 추가했어요");
+  });
+  $("#kidList").addEventListener("change", e => {
+    const input = e.target;
+    if(!input || input.type !== "checkbox") return;
+    const label = input.closest(".kid-item");
+    if(!label) return;
+    const id = label.getAttribute("data-id");
+    const it = kidItems.filter(k => k.id === id)[0];
+    if(!it) return;
+    it.done = !!input.checked;
+    label.classList.toggle("on", it.done);
+    saveKids();
+    renderKids();
+  });
+  $("#kidList").addEventListener("click", e => {
+    const btn = e.target.closest("button[data-del]");
+    if(!btn) return;
+    const id = btn.getAttribute("data-del");
+    kidItems = kidItems.filter(k => k.id !== id);
+    saveKids();
+    renderKids();
+    toast("목록에서 지웠어요");
+  });
 
   let memos = store.get(MEMO_KEY, {});
   if(!memos || typeof memos !== "object" || Array.isArray(memos)) memos = {};
@@ -937,21 +1537,28 @@ var MEAL_IMAGES = {
     toastTimer = setTimeout(() => t.classList.remove("show"), 2100);
   }
 
-  /* ── 주간 식단 ── */
-  function renderWeek(){
-    $("#mealCards").innerHTML = DATA.days.map(d => `
-      <article class="meal-card" data-day="${d.id}" role="button" tabindex="0" aria-label="${esc(d.main)} 레시피 보기">
-        <div class="thumb"><img src="${IMG[d.img] || ""}" alt="${esc(d.main)}" loading="lazy"></div>
+  /* ── 식단 카드 ── */
+  function mealCardHtml(d){
+    const hasImg = !!(d.img && IMG[d.img]);
+    return `
+      <article class="meal-card" data-day="${esc(d.slotId)}" role="button" tabindex="0" aria-label="${esc(d.main)} 레시피 보기">
+        <div class="thumb${hasImg ? "" : " tile"}">${hasImg ? `<img src="${IMG[d.img]}" alt="${esc(d.main)}" loading="lazy">` : esc(d.emoji || "🍚")}</div>
         <div class="meal-body">
           <div class="meal-day">${esc(d.dow)}요일 ${esc(md(d.date))}<span class="time">· ${esc(d.time)}</span></div>
           <h3 class="meal-title">${esc(d.main)}</h3>
           <p class="meal-sides">${(d.sides || []).map(esc).join(" · ")}</p>
           <p class="meal-note"><svg class="ico"><use href="#i-sparkle"/></svg><span>${esc(d.growth)}</span></p>
+          <div class="meal-foot"><button class="shuffle-btn" type="button" data-shuffle="${esc(d.slotId)}"><svg class="ico"><use href="#i-reset"/></svg>다른 메뉴</button></div>
         </div>
         <svg class="chev"><use href="#i-chevron"/></svg>
-      </article>`).join("");
+      </article>`;
+  }
 
-    const weekDates = DATA.days.map(d => d.date);
+  /* ── 주간 식단 ── */
+  function renderWeek(){
+    $("#mealCards").innerHTML = days.map(mealCardHtml).join("");
+
+    const weekDates = days.map(d => d.date);
     const inWeek = weekDates.filter(dt => memos[dt]).map(dt => {
       const m = memos[dt];
       const cat = MEMO_CATS[m.cat] || MEMO_CATS.etc;
@@ -960,54 +1567,155 @@ var MEAL_IMAGES = {
     $("#weekMemos").innerHTML = inWeek.join("");
   }
 
-  /* ── 달력 ── */
-  function renderCalendar(){
-    const t = todayIso();
-    $("#calMonths").innerHTML = DATA.calendar.map(m => {
-      const firstDow = new Date(m.year, m.month - 1, 1).getDay();
-      const lastDate = new Date(m.year, m.month, 0).getDate();
-      const mealCount = DATA.days.filter(d => {
-        const p = d.date.split("-");
-        return +p[0] === m.year && +p[1] === m.month;
-      }).length;
-
-      let cells = "";
-      for(let i = 0; i < firstDow; i++) cells += `<div class="cal-cell blank"></div>`;
-      for(let d = 1; d <= lastDate; d++){
-        const iso = m.year + "-" + String(m.month).padStart(2, "0") + "-" + String(d).padStart(2, "0");
-        const meal = dayByDate[iso];
-        const memo = memos[iso];
-        const dow = new Date(m.year, m.month - 1, d).getDay();
-        let cls = "cal-day";
-        if(dow === 0) cls += " sun";
-        if(meal) cls += " has-meal";
-        if(iso === t) cls += " is-today";
-        const icon = memo ? `<span class="memo">${(MEMO_CATS[memo.cat] || MEMO_CATS.etc).icon}</span>` : "";
-        const dot = meal ? `<span class="dot"></span>` : "";
-        const label = m.month + "월 " + d + "일" + (meal ? " " + meal.main + " 식단" : "") + (memo ? " " + memo.text : "");
-        cells += `<div class="cal-cell"><button class="${cls}" type="button" data-date="${iso}" aria-label="${esc(label)}">${d}${dot}${icon}</button></div>`;
-      }
-
-      return `
-        <div class="cal-card">
-          <div class="cal-head">
-            <h3>${m.year}년 ${m.month}월</h3>
-            <span class="count">${mealCount ? "식단 " + mealCount + "일" : ""}</span>
-          </div>
-          <div class="cal-grid">
-            ${["일","월","화","수","목","금","토"].map((w, i) => `<div class="cal-dow${i === 0 ? " sun" : ""}">${w}</div>`).join("")}
-            ${cells}
-          </div>
-        </div>`;
-    }).join("");
+  /* ── 유치원 챙길 것 ── */
+  function renderKids(){
+    const done = kidItems.filter(k => k.done).length;
+    $("#kidCount").textContent = done + "/" + kidItems.length;
+    $("#kidList").innerHTML = kidItems.map(k => `
+      <div class="kid-row">
+        <label class="kid-item${k.done ? " on" : ""}" data-id="${esc(k.id)}">
+          <input type="checkbox"${k.done ? " checked" : ""} aria-label="${esc(k.text)}">
+          <span class="box"><svg class="ico"><use href="#i-check"/></svg></span>
+          <span class="txt">${esc(k.text)}</span>
+        </label>
+        <button class="kid-del" type="button" data-del="${esc(k.id)}" aria-label="${esc(k.text)} 삭제"><svg class="ico"><use href="#i-trash"/></svg></button>
+      </div>`).join("") || `<p class="kid-empty">챙길 것을 추가해 보세요.</p>`;
   }
+
+  /* ── 달력 ── */
+  const NOW = new Date();
+  let calY = NOW.getFullYear();
+  let calM = NOW.getMonth() + 1;
+  let selDate = todayIso();
+  const shortMain = d => d.short || String(d.main || "").split(/\s+/).pop();
+
+  function shiftMonth(delta){
+    let m = calM + delta, y = calY;
+    while(m < 1){ m += 12; y -= 1; }
+    while(m > 12){ m -= 12; y += 1; }
+    calY = y; calM = m;
+    renderCalendar();
+  }
+
+  function renderCalendar(){
+    $("#calTitle").textContent = calY + "년 " + calM + "월";
+    const firstDow = new Date(calY, calM - 1, 1).getDay();
+    const lastDate = new Date(calY, calM, 0).getDate();
+    const t = todayIso();
+    const W = ["일", "월", "화", "수", "목", "금", "토"];
+
+    let cells = "";
+    for(let i = 0; i < firstDow; i++) cells += `<div class="cal-cell blank"></div>`;
+    for(let d = 1; d <= lastDate; d++){
+      const iso = calY + "-" + String(calM).padStart(2, "0") + "-" + String(d).padStart(2, "0");
+      const meal = dayByDate[iso];
+      const memo = memos[iso];
+      const holi = holiOf(iso);
+      const lun = lunarOf(iso);
+      const dow = new Date(calY, calM - 1, d).getDay();
+
+      let cls = "cal-day";
+      if(dow === 0) cls += " sun";
+      if(dow === 6) cls += " sat";
+      if(holi) cls += " holi";
+      if(iso === t) cls += " is-today";
+      if(iso === selDate) cls += " is-sel";
+
+      const chips = [];
+      if(holi) chips.push(`<span class="chip holi">${esc(holi)}</span>`);
+      if(meal) chips.push(`<span class="chip meal">${esc(shortMain(meal))}</span>`);
+      if(memo) chips.push(`<span class="chip memo">${(MEMO_CATS[memo.cat] || MEMO_CATS.etc).icon} ${esc(memo.text)}</span>`);
+
+      const aria = calM + "월 " + d + "일 " + W[dow] + "요일"
+        + (holi ? " " + holi : "")
+        + (lun ? " 음력 " + lun.m + "월 " + lun.d + "일" : "")
+        + (meal ? " " + meal.main + " 식단" : "")
+        + (memo ? " " + memo.text : "");
+
+      cells += `<div class="cal-cell"><button class="${cls}" type="button" data-date="${iso}" aria-label="${esc(aria)}"${iso === selDate ? " aria-pressed=\"true\"" : ""}>`
+        + `<span class="dnum">${d}</span>`
+        + (lun ? `<span class="lun">${lun.m}.${lun.d}</span>` : "")
+        + (chips.length ? `<span class="chips">${chips.slice(0, 3).join("")}</span>` : "")
+        + `</button></div>`;
+    }
+
+    $("#calMonths").innerHTML = W.map((w, i) => `<div class="cal-dow${i === 0 ? " sun" : i === 6 ? " sat" : ""}">${w}</div>`).join("") + cells;
+    renderDayPanel();
+  }
+
+  function renderDayPanel(){
+    const iso = selDate;
+    const meal = dayByDate[iso];
+    const memo = memos[iso];
+    const holi = holiOf(iso);
+    const lun = lunarOf(iso);
+    const p = String(iso).split("-");
+    const dow = new Date(+p[0], +p[1] - 1, +p[2]).getDay();
+
+    $("#dpDate").textContent = (+p[1]) + "월 " + (+p[2]) + "일 " + DOW_KO[dow] + "요일";
+
+    const tags = [];
+    if(holi) tags.push(`<span class="dp-holi">${esc(holi)}</span>`);
+    if(iso === todayIso()) tags.push(`<span class="dp-cap">오늘</span>`);
+    if(lun) tags.push(`<span class="dp-lun">음 ${lun.m}.${lun.d}</span>`);
+    $("#dpTags").innerHTML = tags.join("");
+
+    const rows = [];
+    if(memo){
+      const cat = MEMO_CATS[memo.cat] || MEMO_CATS.etc;
+      rows.push(`<div class="dp-item">
+        <span class="dp-emo">${cat.icon}</span>
+        <div class="dp-body"><div class="dp-lab">${esc(cat.label)}</div><div class="dp-txt">${esc(memo.text)}</div></div>
+        <button class="dp-mini" type="button" data-memo="edit">수정</button>
+      </div>`);
+    }else{
+      rows.push(`<button class="dp-add" type="button" data-memo="add"><svg class="ico"><use href="#i-plus"/></svg>일정 메모 추가</button>`);
+    }
+
+    if(meal){
+      rows.push(`<div class="dp-sub">저녁 식단</div>` + mealCardHtml(meal));
+    }else{
+      rows.push(`<p class="dp-empty">이 날은 저녁 식단이 없어요.</p>`);
+    }
+
+    $("#dpList").innerHTML = rows.join("");
+  }
+
+  $("#calPrev").addEventListener("click", () => shiftMonth(-1));
+  $("#calNext").addEventListener("click", () => shiftMonth(1));
+  $("#calToday").addEventListener("click", () => {
+    const n = new Date();
+    calY = n.getFullYear();
+    calM = n.getMonth() + 1;
+    selDate = todayIso();
+    renderCalendar();
+  });
+  $("#calMonths").addEventListener("click", e => {
+    const btn = e.target.closest("button[data-date]");
+    if(!btn) return;
+    const iso = btn.getAttribute("data-date");
+    if(!iso) return;
+    selDate = iso;
+    renderCalendar();
+  });
+  $("#dpList").addEventListener("click", e => {
+    if(shuffleFrom(e)) return;
+    if(e.target.closest("[data-memo]")){ openDay(selDate, true); return; }
+    if(e.target.closest(".meal-card")) openDay(selDate, false);
+  });
+  $("#dpList").addEventListener("keydown", e => {
+    if(e.key !== "Enter" && e.key !== " ") return;
+    if(!e.target.closest(".meal-card")) return;
+    e.preventDefault();
+    openDay(selDate, false);
+  });
 
   /* ── 날짜 · 레시피 시트 ── */
   let openDate = null;
   let memoCat = "trip";
   const dayModal = $("#dayModal");
 
-  function openDay(iso){
+  function openDay(iso, focusMemo){
     openDate = iso;
     const meal = dayByDate[iso];
     const p = String(iso).split("-");
@@ -1015,9 +1723,13 @@ var MEAL_IMAGES = {
     $("#sheetDate").textContent = (+p[1]) + "월 " + (+p[2]) + "일 · " + DOW_KO[dow] + "요일";
 
     if(meal){
+      const hasImg = !!(meal.img && IMG[meal.img]);
       $("#sheetTitle").textContent = meal.main;
-      $("#sheetImg").src = IMG[meal.img] || "";
+      $("#sheetImg").src = hasImg ? IMG[meal.img] : "";
       $("#sheetImg").alt = meal.main;
+      $("#sheetImg").style.display = hasImg ? "block" : "none";
+      $("#sheetTile").textContent = meal.emoji || "🍚";
+      $("#sheetTile").style.display = hasImg ? "none" : "flex";
       $("#sheetSides").textContent = (meal.sides || []).join(" · ");
       $("#sheetMeta").textContent = [meal.time, "3인분", "안 맵게"].join(" · ");
       $("#sheetGrowth").textContent = meal.growth;
@@ -1055,7 +1767,16 @@ var MEAL_IMAGES = {
 
     dayModal.classList.add("open");
     document.body.style.overflow = "hidden";
-    $("#daySheet").scrollTop = 0;
+    let memoTop = 0;
+    if(focusMemo){
+      const sheet = $("#daySheet");
+      const mb = document.querySelector("#daySheet .memo-block");
+      if(sheet && mb && typeof mb.getBoundingClientRect === "function" && typeof sheet.getBoundingClientRect === "function"){
+        const off = mb.getBoundingClientRect().top - sheet.getBoundingClientRect().top;
+        if(isFinite(off) && off > 0) memoTop = off;
+      }
+    }
+    $("#daySheet").scrollTop = memoTop;
   }
 
   function closeDay(){
@@ -1107,10 +1828,11 @@ var MEAL_IMAGES = {
   dayModal.addEventListener("click", e => { if(e.target === dayModal) closeDay(); });
 
   const dateOfCard = card => {
-    const d = DATA.days.find(x => x.id === card.getAttribute("data-day"));
+    const d = dayById[card.getAttribute("data-day")];
     return d ? d.date : null;
   };
   $("#mealCards").addEventListener("click", e => {
+    if(shuffleFrom(e)) return;
     const card = e.target.closest(".meal-card");
     if(!card) return;
     const iso = dateOfCard(card);
@@ -1131,16 +1853,15 @@ var MEAL_IMAGES = {
 
   /* ── 장보기 ── */
   function renderShop(){
-    $("#shopCats").innerHTML = DATA.shopping.map((c, ci) => `
+    $("#shopCats").innerHTML = shopCats.map(c => `
       <div class="shop-card">
         <h3>${esc(c.name)}<span class="n">${c.items.length}개</span></h3>
-        ${c.items.map((it, ii) => {
-          const id = itemId(ci, ii);
-          const on = checked.indexOf(id) > -1;
-          return `<label class="shop-item${on ? " on" : ""}" data-id="${id}">
-            <input type="checkbox"${on ? " checked" : ""} aria-label="${esc(it)}">
+        ${c.items.map(it => {
+          const on = checked.indexOf(it.key) > -1;
+          return `<label class="shop-item${on ? " on" : ""}" data-id="${esc(it.key)}">
+            <input type="checkbox"${on ? " checked" : ""} aria-label="${esc(it.text)}">
             <span class="box"><svg class="ico"><use href="#i-check"/></svg></span>
-            <span class="txt">${esc(it)}</span>
+            <span class="txt">${esc(it.text)}${it.n > 1 ? ` <em class="mult">×${it.n}</em>` : ""}</span>
           </label>`;
         }).join("")}
       </div>`).join("");
@@ -1149,7 +1870,7 @@ var MEAL_IMAGES = {
 
   function updateProgress(){
     const total = allItems.length;
-    const done = checked.length;
+    const done = allItems.filter(k => checked.indexOf(k) > -1).length;
     $("#progressDone").textContent = done;
     $("#progressTotal").textContent = total;
     $("#progressFill").style.width = (total ? Math.round(done / total * 100) : 0) + "%";
@@ -1324,7 +2045,7 @@ var MEAL_IMAGES = {
 
   function renderRecords(recs){
     if(!recs.length){
-      $("#recList").innerHTML = `<div class="empty"><svg aria-hidden="true"><use href="#i-rabbit"/></svg>아직 기록이 없어요.<br>키와 몸무게를 함께 남겨 보세요.</div>`;
+      $("#recList").innerHTML = `<div class="empty">아직 기록이 없어요.<br>키와 몸무게를 함께 남겨 보세요.</div>`;
       return;
     }
     const desc = recs.slice().reverse();
@@ -1390,15 +2111,15 @@ var MEAL_IMAGES = {
 
   function weekShareText(){
     const L = [];
-    L.push(DATA.appName + " · " + DATA.weekLabel);
+    L.push(BRAND + " · " + DATA.weekLabel);
     L.push("(" + DATA.family + ")");
     L.push("");
-    DATA.days.forEach(d => {
+    days.forEach(d => {
       L.push("[" + d.dow + " " + md(d.date) + "] " + d.main + " · " + (d.sides || []).join(" · ") + " (" + d.time + ")");
     });
     L.push("");
     L.push("장보기");
-    DATA.shopping.forEach(c => L.push("· " + c.name + ": " + c.items.join(", ")));
+    shopCats.forEach(c => L.push("· " + c.name + ": " + c.items.map(it => it.text + (it.n > 1 ? " ×" + it.n : "")).join(", ")));
     const memoDates = Object.keys(memos).sort();
     if(memoDates.length){
       L.push("");
@@ -1410,6 +2131,11 @@ var MEAL_IMAGES = {
       });
     }
     L.push("");
+    if(kidItems.length){
+      L.push("유치원 챙길 것");
+      kidItems.forEach(k => L.push((k.done ? "[v] " : "[ ] ") + k.text));
+      L.push("");
+    }
     if(records.length){
       L.push("유하 기록");
       records.slice().sort(cmpDate).forEach(r => L.push("· " + r.date + "  " + num(r.height) + "cm / " + num(r.weight) + "kg"));
@@ -1417,7 +2143,7 @@ var MEAL_IMAGES = {
       L.push("유하 기록: 아직 없음");
     }
     L.push("");
-    L.push("— " + DATA.appName);
+    L.push("— " + BRAND);
     return L.join("\n");
   }
 
@@ -1454,6 +2180,8 @@ var MEAL_IMAGES = {
       week: DATA.weekId,
       growth: records.slice().sort(cmpDate).map(r => ({ d: r.date, h: r.height, w: r.weight })),
       memos: memoArr,
+      plan: plan.slice(),
+      kids: kidItems.map(k => ({ t: k.text, d: !!k.done })),
       shopOn: checked.slice()
     };
     return "YUHA1:" + b64Encode(JSON.stringify(payload));
@@ -1516,7 +2244,7 @@ var MEAL_IMAGES = {
   $("#shareNow").addEventListener("click", () => {
     const text = $("#shareText").value;
     if(navigator.share){
-      navigator.share({ title: DATA.appName + " · " + DATA.weekLabel, text: text }).catch(err => {
+      navigator.share({ title: BRAND + " · " + DATA.weekLabel, text: text }).catch(err => {
         if(err && err.name === "AbortError") return;
         copyToClipboard(text, "공유 대신 복사했어요");
       });
@@ -1545,9 +2273,12 @@ var MEAL_IMAGES = {
       .map(g => ({ date: String(g.d).slice(0, 10), height: +g.h, weight: +g.w }));
     const memoIn = (Array.isArray(data.memos) ? data.memos : [])
       .filter(m => m && m.d && m.t);
+    const kidIn = (Array.isArray(data.kids) ? data.kids : [])
+      .filter(k => k && typeof k.t === "string" && k.t);
+    const planIn = (Array.isArray(data.plan) && data.plan.some(k => MEAL_BY_KEY[k])) ? data.plan : null;
 
-    if(!incoming.length && !memoIn.length) throw new Error("불러올 기록이 없어요.");
-    if(!window.confirm("기록 " + incoming.length + "개와 메모 " + memoIn.length + "개를 불러올게요. 같은 날짜 기록은 새 값으로 바뀌어요.")) return 0;
+    if(!incoming.length && !memoIn.length && !kidIn.length && !planIn) throw new Error("불러올 기록이 없어요.");
+    if(!window.confirm("기록 " + incoming.length + "개, 메모 " + memoIn.length + "개, 유치원 챙길 것 " + kidIn.length + "개를 불러올게요. 같은 날짜 기록은 새 값으로 바뀌어요.")) return 0;
 
     let count = 0;
     incoming.forEach(g => {
@@ -1560,6 +2291,18 @@ var MEAL_IMAGES = {
       memos[String(m.d).slice(0, 10)] = { cat: MEMO_CATS[m.c] ? m.c : "etc", text: String(m.t).slice(0, 40) };
       count++;
     });
+    if(planIn){
+      plan = SLOT_IDS.map((def, i) => MEAL_BY_KEY[planIn[i]] ? planIn[i] : def);
+      savePlan();
+      applyPlan();
+      buildShopping();
+      count++;
+    }
+    if(kidIn.length){
+      kidItems = kidIn.map((k, i) => ({ id: "k" + i + "-" + uid(), text: String(k.t).slice(0, 60), done: !!k.d }));
+      saveKids();
+      count += kidIn.length;
+    }
     if(Array.isArray(data.shopOn)){
       data.shopOn.forEach(id => {
         if(typeof id === "string" && allItems.indexOf(id) > -1 && checked.indexOf(id) === -1) checked.push(id);
@@ -1568,6 +2311,7 @@ var MEAL_IMAGES = {
     }
     saveRecords();
     saveMemos();
+    renderKids();
     renderGrowth();
     renderCalendar();
     renderWeek();
@@ -1588,26 +2332,41 @@ var MEAL_IMAGES = {
   });
 
   /* ── 탭 ── */
-  const views = { week: $("#view-week"), cal: $("#view-cal"), shop: $("#view-shop"), grow: $("#view-grow") };
-  function setView(name, save){
-    if(!views[name]) name = "week";
+  const views = { cal: $("#view-cal"), meal: $("#view-meal"), grow: $("#view-grow") };
+  function setView(name){
+    if(!views[name]) name = "cal";
     $$(".tab").forEach(t => t.classList.toggle("active", t.getAttribute("data-view") === name));
     Object.keys(views).forEach(k => views[k].classList.toggle("active", k === name));
-    if(save) store.set(TAB_KEY, name);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
-  $$(".tab").forEach(t => t.addEventListener("click", () => setView(t.getAttribute("data-view"), true)));
+  $$(".tab").forEach(t => t.addEventListener("click", () => setView(t.getAttribute("data-view"))));
+
+  const goMeal = $("#goMeal");
+  if(goMeal) goMeal.addEventListener("click", () => setView("meal"));
+
+  function jumpTo(id){
+    const el = document.getElementById(id);
+    if(!el) return;
+    if(typeof el.getBoundingClientRect === "function"){
+      const top = el.getBoundingClientRect().top + (window.pageYOffset || 0) - 56;
+      window.scrollTo({ top: top < 0 ? 0 : top, behavior: "smooth" });
+    }else if(typeof el.scrollIntoView === "function"){
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }
+  $$(".jump-pill").forEach(btn => btn.addEventListener("click", () => jumpTo(btn.getAttribute("data-jump"))));
 
   document.addEventListener("keydown", e => {
     if(e.key === "Escape"){ closeDay(); closeShare(); }
   });
 
   /* ── 시작 ── */
+  renderKids();
   renderWeek();
   renderCalendar();
   renderShop();
   renderGrowth();
-  setView(store.get(TAB_KEY, "week"), false);
+  setView("cal");
 })();
 </script>
 </body>
