@@ -1531,18 +1531,21 @@ var MEAL_IMAGES = {
   /* ── 유치원 챙길 것 ── */
   const KID_KEY = "yuhane-kidnote-v1";
   const KID_SEED = [
-    "보조가방 대여도서 반납 (매주 화요일까지)",
     "영어 플래시카드 6호 집에서 함께 하기",
-    "선택형 심화영어 숙제 화일에 넣어 보내기",
     "11월 말 아침방송 대본 연습하기",
     "등원 시 마스크 챙기기"
+  ];
+  /* 예전 기본 목록에 있던 두 항목은 어느 기기에서도 안 보이게 지운다 */
+  const KID_DROP = [
+    "보조가방 대여도서 반납 (매주 화요일까지)",
+    "선택형 심화영어 숙제 화일에 넣어 보내기"
   ];
   let kidItems = store.get(KID_KEY, null);
   if(!Array.isArray(kidItems)){
     kidItems = KID_SEED.map((t, i) => ({ id: "k" + i, text: t, done: false }));
   }else{
     kidItems = kidItems
-      .filter(k => k && typeof k.text === "string" && k.text)
+      .filter(k => k && typeof k.text === "string" && k.text && KID_DROP.indexOf(String(k.text).trim()) === -1)
       .map((k, i) => ({ id: k.id ? String(k.id) : ("k" + i), text: String(k.text).slice(0, 60), done: !!k.done }));
   }
   const saveKids = () => store.set(KID_KEY, kidItems);
