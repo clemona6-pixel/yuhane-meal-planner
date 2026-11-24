@@ -3363,12 +3363,12 @@ var MEAL_IMAGES = {
   }
 
   const SYNC_SECTIONS = [
-    { key: "memos", ls: MEMO_KEY, label: "일정", read: () => memos, write: v => { memos = cleanMemos(v); store.set(MEMO_KEY, memos); } },
-    { key: "kids", ls: KID_KEY, label: "유치원 챙길 것", read: () => kidItems, write: v => { kidItems = cleanKids(v); store.set(KID_KEY, kidItems); } },
-    { key: "academy", ls: ACAD_KEY, label: "유하 학원", read: () => acadItems, write: v => { acadItems = cleanAcad(v); store.set(ACAD_KEY, acadItems); } },
-    { key: "plan", ls: PLAN_KEY, label: "이번 주 식단", read: () => plan, write: v => { plan = SLOT_IDS.map((def, i) => (Array.isArray(v) && MEAL_BY_KEY[v[i]]) ? v[i] : def); store.set(PLAN_KEY, plan); applyPlan(); buildShopping(); } },
-    { key: "shop", ls: SHOP_KEY, label: "장보기 체크", read: () => checked, write: v => { checked = (Array.isArray(v) ? v : []).filter(x => typeof x === "string"); store.set(SHOP_KEY, checked); } },
-    { key: "growth", ls: GROW_KEY, label: "유하 기록", read: () => records, write: v => { records = cleanRecords(v); store.set(GROW_KEY, records); } }
+    { key: "memos", ls: MEMO_KEY, empty: () => ({}), label: "일정", read: () => memos, write: v => { memos = cleanMemos(v); store.set(MEMO_KEY, memos); } },
+    { key: "kids", ls: KID_KEY, empty: () => [], label: "유치원 챙길 것", read: () => kidItems, write: v => { kidItems = cleanKids(v); store.set(KID_KEY, kidItems); } },
+    { key: "academy", ls: ACAD_KEY, empty: () => [], label: "유하 학원", read: () => acadItems, write: v => { acadItems = cleanAcad(v); store.set(ACAD_KEY, acadItems); } },
+    { key: "plan", ls: PLAN_KEY, empty: () => [], label: "이번 주 식단", read: () => plan, write: v => { plan = SLOT_IDS.map((def, i) => (Array.isArray(v) && MEAL_BY_KEY[v[i]]) ? v[i] : def); store.set(PLAN_KEY, plan); applyPlan(); buildShopping(); } },
+    { key: "shop", ls: SHOP_KEY, empty: () => [], label: "장보기 체크", read: () => checked, write: v => { checked = (Array.isArray(v) ? v : []).filter(x => typeof x === "string"); store.set(SHOP_KEY, checked); } },
+    { key: "growth", ls: GROW_KEY, empty: () => [], label: "유하 기록", read: () => records, write: v => { records = cleanRecords(v); store.set(GROW_KEY, records); } }
   ];
   const SYNC_BY_KEY = {};
   const SYNC_BY_LS = {};
@@ -3484,7 +3484,8 @@ var MEAL_IMAGES = {
     const changed = [];
     SYNC_SECTIONS.forEach(s => {
       if(!Object.prototype.hasOwnProperty.call(data, s.key)) return;
-      const v = data[s.key];
+      let v = data[s.key];
+      if(v === null) v = s.empty ? s.empty() : null;
       if(v === null || v === undefined) return;
       if(sync.dirty[s.key]) return;      // 아직 못 올린 내 변경은 지키기
       let cur = null;
@@ -3529,7 +3530,15 @@ var MEAL_IMAGES = {
         return syncSeed();       // 클라우드가 비어 있음 → 이 기기 데이터를 첫 값으로 올림
       }
       syncApply(data);
-      const missing = SYNC_SECTIONS.map(s => s.key).filter(k => !Object.prototype.hasOwnProperty.call(data, k));
+      const missing = SYNC_SECTIONS.filter(s => !Object.prototype.hasOwnProperty.call(data, s.key))
+        .filter(s => {
+          let v = null;
+          try{ v = s.read(); }catch(e){ v = null; }
+          if(Array.isArray(v)) return v.length > 0;
+          if(v && typeof v === "object") return Object.keys(v).length > 0;
+          return v !== null && v !== undefined;
+        })
+        .map(s => s.key);
       if(missing.length){
         missing.forEach(k => { sync.dirty[k] = 1; });
         syncFlush();
@@ -3565,10 +3574,7 @@ var MEAL_IMAGES = {
     }
     sync.remote = (sync.remote && typeof sync.remote === "object") ? sync.remote : {};
     const patch = (data && typeof data === "object" && !Array.isArray(data)) ? data : {};
-    Object.keys(patch).forEach(k => {
-      if(patch[k] === null || patch[k] === undefined) delete sync.remote[k];
-      else sync.remote[k] = patch[k];
-    });
+    Object.keys(patch).forEach(k => { sync.remote[k] = patch[k]; });
   }
 
   function syncEvent(kind, payload){
