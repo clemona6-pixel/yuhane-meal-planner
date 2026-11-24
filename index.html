@@ -324,6 +324,7 @@ var KR_HOLIDAYS = {
   }
   .meal-card:active{background:var(--pink-50);border-color:var(--pink-200)}
   .meal-card .thumb{width:86px;height:86px;border-radius:11px;overflow:hidden;flex:none;background:var(--pink-50)}
+  .meal-card.noimg .meal-title{white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
   .meal-card .thumb img{width:100%;height:100%;object-fit:cover;display:block}
   .meal-body{flex:1;min-width:0}
   .meal-day{display:flex;align-items:center;gap:7px;font-size:11px;font-weight:600;color:var(--accent-deep)}
@@ -1373,8 +1374,8 @@ var MEAL_IMAGES = {
   function mealCardHtml(d){
     const hasImg = !!(d.img && IMG[d.img]);
     return `
-      <article class="meal-card" data-day="${esc(d.slotId)}" role="button" tabindex="0" aria-label="${esc(d.main)} 레시피 보기">
-        <div class="thumb${hasImg ? "" : " tile"}">${hasImg ? `<img src="${IMG[d.img]}" alt="${esc(d.main)}" loading="lazy">` : esc(d.emoji || "🍚")}</div>
+      <article class="meal-card${hasImg ? "" : " noimg"}" data-day="${esc(d.slotId)}" role="button" tabindex="0" aria-label="${esc(d.main)} 레시피 보기">
+        ${hasImg ? `<div class="thumb"><img src="${IMG[d.img]}" alt="${esc(d.main)}" loading="lazy"></div>` : ""}
         <div class="meal-body">
           <div class="meal-day">${esc(d.dow)}요일 ${esc(md(d.date))}<span class="time">· ${esc(d.time)}</span>${seasonBadge(d)}</div>
           <h3 class="meal-title">${esc(d.main)}</h3>
@@ -1546,8 +1547,8 @@ var MEAL_IMAGES = {
       $("#sheetImg").src = hasImg ? IMG[meal.img] : "";
       $("#sheetImg").alt = meal.main;
       $("#sheetImg").style.display = hasImg ? "block" : "none";
-      $("#sheetTile").textContent = meal.emoji || "🍚";
-      $("#sheetTile").style.display = hasImg ? "none" : "flex";
+      $("#sheetTile").textContent = "";
+      $("#sheetTile").style.display = "none";
       $("#sheetSides").textContent = (meal.sides || []).join(" · ");
       $("#sheetMeta").textContent = [meal.time, "3인분", "안 맵게", meal.seasonNote].filter(Boolean).join(" · ");
       $("#sheetGrowth").textContent = meal.nutrition;
