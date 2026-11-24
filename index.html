@@ -1957,35 +1957,44 @@ var MEAL_IMAGES = {
     { date: "2026-03-27", height: 97.6 },
     { date: "2026-06-11", height: 99.1 },
     { date: "2026-07-16", height: 99.6 },
-    { date: "2026-08-18", height: 100.5 }
+    { date: "2026-08-18", height: 100.5 },
+    { date: "2026-11-21", weight: 16.6 }
   ];
-  const GROW_SEED_FLAG = "yuhane-growth-seed-v2";
+  const GROW_SEED_FLAG = "yuhane-growth-seed-v3";
 
   function cleanRecords(raw){
     return (Array.isArray(raw) ? raw : [])
-      .filter(r => r && r.date && isFinite(+r.height) && +r.height > 0)
-      .map(r => ({
-        id: r.id ? String(r.id) : uid(),
-        date: String(r.date).slice(0, 10),
-        height: Math.round(+r.height * 10) / 10,
-        weight: (r.weight === null || r.weight === undefined || r.weight === "")
-          ? null
-          : (isFinite(+r.weight) && +r.weight > 0 ? Math.round(+r.weight * 10) / 10 : null)
-      }));
+      .filter(r => r && r.date)
+      .map(r => {
+        const h = (r.height === null || r.height === undefined || r.height === "") ? null : +r.height;
+        const w = (r.weight === null || r.weight === undefined || r.weight === "") ? null : +r.weight;
+        return {
+          id: r.id ? String(r.id) : uid(),
+          date: String(r.date).slice(0, 10),
+          height: (h !== null && isFinite(h) && h > 0) ? Math.round(h * 10) / 10 : null,
+          weight: (w !== null && isFinite(w) && w > 0) ? Math.round(w * 10) / 10 : null
+        };
+      })
+      .filter(r => r.height !== null || r.weight !== null);
   }
 
   let records = cleanRecords(store.get(GROW_KEY, null));
-  /* 기본 키 기록은 기기마다 한 번만 채워 넣고, 지운 기록은 다시 살리지 않습니다. */
-  if(store.get(GROW_SEED_FLAG, null) !== "v2"){
+  /* 기본 기록은 기기마다 한 번만 채워 넣고, 지운 기록은 다시 살리지 않습니다. */
+  if(store.get(GROW_SEED_FLAG, null) !== "v3"){
     const seeded = {};
     records.forEach(r => { seeded[r.date] = 1; });
     GROW_SEED.forEach(s => {
       if(seeded[s.date]) return;
-      records.push({ id: "g-" + s.date, date: s.date, height: s.height, weight: null });
+      records.push({
+        id: "g-" + s.date,
+        date: s.date,
+        height: (s.height === undefined ? null : s.height),
+        weight: (s.weight === undefined ? null : s.weight)
+      });
     });
     records.sort(cmpDate);
     store.set(GROW_KEY, records);
-    store.set(GROW_SEED_FLAG, "v2");
+    store.set(GROW_SEED_FLAG, "v3");
   }
 
   /* ── 또래 평균: 질병관리청 2017 소아청소년 성장도표 · 여아 50백분위수 ──
@@ -2528,32 +2537,33 @@ var MEAL_IMAGES = {
 
   function renderGrowth(){
     const recs = records.slice().sort(cmpDate);
-    const last = recs[recs.length - 1] || null;
-    const prev = recs[recs.length - 2] || null;
-    const first = recs[0] || null;
-    const weighed = recs.filter(r => r.weight !== null);
-    const lastW = weighed[weighed.length - 1] || null;
-    const prevW = weighed[weighed.length - 2] || null;
+    const withH = recs.filter(r => r.height !== null);
+    const withW = recs.filter(r => r.weight !== null);
+    const lastH = withH[withH.length - 1] || null;
+    const prevH = withH[withH.length - 2] || null;
+    const firstH = withH[0] || null;
+    const lastW = withW[withW.length - 1] || null;
+    const prevW = withW[withW.length - 2] || null;
+    const firstW = withW[0] || null;
 
-    const dh = last && prev ? last.height - prev.height : null;
+    const dh = lastH && prevH ? lastH.height - prevH.height : null;
     const dw = lastW && prevW ? lastW.weight - prevW.weight : null;
-    const th = last && first && recs.length > 1 ? last.height - first.height : null;
-    const tw = lastW && weighed.length > 1 ? lastW.weight - weighed[0].weight : null;
+    const th = lastH && firstH && withH.length > 1 ? lastH.height - firstH.height : null;
+    const tw = lastW && firstW && withW.length > 1 ? lastW.weight - firstW.weight : null;
 
     /* 또래 여아 평균(50백분위수)과 견주기 */
-    const nowM = monthsAt(todayIso());
-    const hM = last ? monthsAt(last.date) : nowM;
-    const wM = lastW ? monthsAt(lastW.date) : nowM;
-    const ph = peerHeight(last ? last.date : todayIso());
+    const hM = lastH ? monthsAt(lastH.date) : monthsAt(todayIso());
+    const wM = lastW ? monthsAt(lastW.date) : monthsAt(todayIso());
+    const ph = peerHeight(lastH ? lastH.date : todayIso());
     const pwW = peerWeight(lastW ? lastW.date : todayIso());
-    const hGap = (last && ph !== null) ? r1(last.height - ph) : null;
+    const hGap = (lastH && ph !== null) ? r1(lastH.height - ph) : null;
     const wGap = (lastW && pwW !== null) ? r1(lastW.weight - pwW) : null;
 
     $("#statGrid").innerHTML = `
       <div class="stat-card hi">
         <div class="st">최근 키</div>
-        <div class="sv">${last ? num(last.height) : "—"}<em>cm</em></div>
-        <div class="sd">${last ? md(last.date) + " 측정" : "기록을 남겨 보세요"}</div>
+        <div class="sv">${lastH ? num(lastH.height) : "—"}<em>cm</em></div>
+        <div class="sd">${lastH ? md(lastH.date) + " 측정" : "기록을 남겨 보세요"}</div>
       </div>
       <div class="stat-card">
         <div class="st">최근 몸무게</div>
@@ -2573,12 +2583,12 @@ var MEAL_IMAGES = {
       <div class="stat-card peer">
         <div class="st">또래 평균 키<span class="tag">${hM !== null ? hM + "개월" : ""}</span></div>
         <div class="sv">${ph === null ? "—" : num(ph)}<em>cm</em></div>
-        <div class="sd">${last && hGap !== null ? "유하 " + num(last.height) + "cm · 평균보다 " + signed(hGap, "cm") : "같은 개월 또래 여아 평균"}</div>
+        <div class="sd">${lastH && hGap !== null ? "유하 " + num(lastH.height) + "cm · 평균보다 " + signed(hGap, "cm") : "같은 개월 또래 여아 평균"}</div>
       </div>
       <div class="stat-card peer">
         <div class="st">또래 평균 몸무게<span class="tag">${wM !== null ? wM + "개월" : ""}</span></div>
         <div class="sv">${pwW === null ? "—" : num(pwW)}<em>kg</em></div>
-        <div class="sd">${lastW && wGap !== null ? "유하 " + num(lastW.weight) + "kg · 평균보다 " + signed(wGap, "kg") : "지금 " + wM + "개월 또래 평균 · 몸무게 기록 없음"}</div>
+        <div class="sd">${lastW && wGap !== null ? "유하 " + num(lastW.weight) + "kg · 평균보다 " + signed(wGap, "kg") : "몸무게를 적으면 유하와 바로 비교돼요"}</div>
       </div>`;
 
     renderChart(recs);
@@ -2619,9 +2629,10 @@ var MEAL_IMAGES = {
     /* 축 범위는 유하 기록과 또래 평균을 함께 담아 점선이 잘리지 않게 */
     const peerHs = recs.map(r => peerHeight(r.date)).filter(v => v !== null);
     const peerWs = recs.map(r => peerWeight(r.date)).filter(v => v !== null);
-    const weighed = recs.filter(r => r.weight !== null);
-    const hs = recs.map(r => r.height).concat(peerHs.length ? peerHs : [AVG_H]);
-    const ws = weighed.map(r => r.weight).concat(peerWs.length ? peerWs : [AVG_W]);
+    const hVals = recs.filter(r => r.height !== null).map(r => r.height);
+    const wVals = recs.filter(r => r.weight !== null).map(r => r.weight);
+    const hs = hVals.concat(peerHs.length ? peerHs : [AVG_H]);
+    const ws = wVals.concat(peerWs.length ? peerWs : [AVG_W]);
     const hMin = Math.min.apply(null, hs) - 3, hMax = Math.max.apply(null, hs) + 3;
     const wMin = Math.min.apply(null, ws) - 2.5, wMax = Math.max.apply(null, ws) + 2.5;
     const x = i => recs.length === 1 ? L + pw / 2 : L + pw * i / (recs.length - 1);
@@ -2651,8 +2662,10 @@ var MEAL_IMAGES = {
       svg.appendChild(mk("path", { d: pathOf(peerHPts), fill: "none", stroke: "#C6B4D6", "stroke-width": 1.6, "stroke-dasharray": "4.5 4", "stroke-linecap": "round" }));
     }
 
-    const hPts = recs.map((r, i) => [x(i), yH(r.height)]);
-    const wPts = recs.map((r, i) => r.weight === null ? null : [x(i), yW(r.weight)]).filter(Boolean);
+    const hPt = recs.map((r, i) => r.height === null ? null : [x(i), yH(r.height)]);
+    const wPt = recs.map((r, i) => r.weight === null ? null : [x(i), yW(r.weight)]);
+    const hPts = hPt.filter(Boolean);
+    const wPts = wPt.filter(Boolean);
 
     if(hPts.length > 1){
       let area = "M" + hPts[0][0].toFixed(1) + "," + (T + ph);
@@ -2679,22 +2692,23 @@ var MEAL_IMAGES = {
 
     const showVals = recs.length <= 6;
     recs.forEach((r, i) => {
-      svg.appendChild(mk("circle", { cx: hPts[i][0], cy: hPts[i][1], r: 3.6, fill: "#fff", stroke: "#E88A9E", "stroke-width": 2 }));
-      if(r.weight !== null){
-        svg.appendChild(mk("circle", { cx: x(i), cy: yW(r.weight), r: 3.1, fill: "#fff", stroke: "#8DC0AF", "stroke-width": 1.8 }));
-      }
+      if(hPt[i]) svg.appendChild(mk("circle", { cx: hPt[i][0], cy: hPt[i][1], r: 3.6, fill: "#fff", stroke: "#E88A9E", "stroke-width": 2 }));
+      if(wPt[i]) svg.appendChild(mk("circle", { cx: wPt[i][0], cy: wPt[i][1], r: 3.1, fill: "#fff", stroke: "#8DC0AF", "stroke-width": 1.8 }));
       if(showVals){
-        const th = mk("text", { x: hPts[i][0], y: hPts[i][1] - 8, "text-anchor": "middle", "font-size": "8", "font-weight": "600", fill: "#C9607A" });
-        th.textContent = num(r.height);
-        svg.appendChild(th);
-        if(r.weight !== null){
-          const tw2 = mk("text", { x: x(i), y: yW(r.weight) + 13, "text-anchor": "middle", "font-size": "7.5", "font-weight": "600", fill: "#5A9A87" });
+        if(hPt[i]){
+          const th = mk("text", { x: hPt[i][0], y: hPt[i][1] - 8, "text-anchor": "middle", "font-size": "8", "font-weight": "600", fill: "#C9607A" });
+          th.textContent = num(r.height);
+          svg.appendChild(th);
+        }
+        if(wPt[i]){
+          const tw2 = mk("text", { x: wPt[i][0], y: wPt[i][1] + 13, "text-anchor": "middle", "font-size": "7.5", "font-weight": "600", fill: "#5A9A87" });
           tw2.textContent = num(r.weight);
           svg.appendChild(tw2);
         }
       }
       if(recs.length <= 8 || i % 2 === 0 || i === recs.length - 1){
-        const tx = mk("text", { x: hPts[i][0], y: H - 10, "text-anchor": "middle", "font-size": "8", fill: "#B7A6AB" });
+        const anchor = hPt[i] ? hPt[i][0] : (wPt[i] ? wPt[i][0] : x(i));
+        const tx = mk("text", { x: anchor, y: H - 10, "text-anchor": "middle", "font-size": "8", fill: "#B7A6AB" });
         tx.textContent = md(r.date);
         svg.appendChild(tx);
       }
@@ -2709,20 +2723,21 @@ var MEAL_IMAGES = {
     const desc = recs.slice().reverse();
     $("#recList").innerHTML = desc.map(r => {
       const idx = recs.indexOf(r);
-      const p = idx > 0 ? recs[idx - 1] : null;
-      const wPrev = recs.slice(0, idx).reverse().filter(x => x.weight !== null)[0] || null;
+      const prevH = recs.slice(0, idx).reverse().filter(x => x.height !== null)[0] || null;
+      const prevW = recs.slice(0, idx).reverse().filter(x => x.weight !== null)[0] || null;
       const bits = [];
-      if(p) bits.push("지난 기록보다 " + signed(r.height - p.height, "cm"));
-      if(r.weight !== null && wPrev) bits.push(signed(r.weight - wPrev.weight, "kg"));
-      const ph = peerHeight(r.date);
-      const hg = ph === null ? null : r1(r.height - ph);
+      if(r.height !== null && prevH) bits.push("지난 기록보다 " + signed(r.height - prevH.height, "cm"));
+      if(r.weight !== null && prevW) bits.push(signed(r.weight - prevW.weight, "kg"));
       let delta = bits.length ? bits.join(" · ") : "첫 기록";
-      if(hg !== null) delta += " · 또래 평균 " + signed(hg, "cm");
+      if(r.height !== null){
+        const ph = peerHeight(r.date);
+        if(ph !== null) delta += " · 또래 평균 " + signed(r1(r.height - ph), "cm");
+      }
       return `
         <div class="rec-item">
           <div class="rec-date">${md(r.date)}<small>${r.date.slice(0, 4)}</small></div>
           <div class="rec-main">
-            <div class="rec-nums"><span class="h">${num(r.height)}cm</span>${r.weight !== null ? `<span class="w">${num(r.weight)}kg</span>` : ""}</div>
+            <div class="rec-nums">${r.height !== null ? `<span class="h">${num(r.height)}cm</span>` : ""}${r.weight !== null ? `<span class="w">${num(r.weight)}kg</span>` : ""}</div>
             <div class="rec-delta">${delta}</div>
           </div>
           <button class="rec-del" type="button" data-del="${r.id}" aria-label="${md(r.date)} 기록 삭제"><svg class="ico"><use href="#i-trash"/></svg></button>
@@ -2736,21 +2751,23 @@ var MEAL_IMAGES = {
     e.preventDefault();
     const err = $("#gErr");
     const date = $("#gDate").value;
-    const h = parseFloat($("#gHeight").value);
+    const hRaw = String($("#gHeight").value === undefined || $("#gHeight").value === null ? "" : $("#gHeight").value).trim();
+    const h = hRaw === "" ? null : parseFloat(hRaw);
     const wRaw = String($("#gWeight").value === undefined || $("#gWeight").value === null ? "" : $("#gWeight").value).trim();
     const w = wRaw === "" ? null : parseFloat(wRaw);
     err.textContent = "";
     if(!date){ err.textContent = "날짜를 골라 주세요."; return; }
-    if(!isFinite(h) || h < 60 || h > 160){ err.textContent = "키는 60~160cm 사이로 입력해 주세요."; return; }
+    if(h === null && w === null){ err.textContent = "키나 몸무게 중 하나는 적어 주세요."; return; }
+    if(h !== null && (!isFinite(h) || h < 60 || h > 160)){ err.textContent = "키는 60~160cm 사이로 입력해 주세요."; return; }
     if(w !== null && (!isFinite(w) || w < 8 || w > 60)){ err.textContent = "몸무게는 8~60kg 사이로 입력해 주세요."; return; }
     const same = records.find(r => r.date === date);
     if(same){
-      same.height = h;
+      if(h !== null) same.height = h;
       if(w !== null) same.weight = w;
-      toast(w === null && same.weight !== null ? "키를 새 값으로 바꿨어요" : "같은 날짜 기록을 새 값으로 바꿨어요");
+      toast("같은 날짜 기록을 새 값으로 바꿨어요");
     }else{
       records.push({ id: uid(), date: date, height: h, weight: w });
-      toast(w === null ? "키만 기록했어요" : "유하 기록을 저장했어요");
+      toast(h === null ? "몸무게를 기록했어요" : (w === null ? "키만 기록했어요" : "유하 기록을 저장했어요"));
     }
     saveRecords();
     renderGrowth();
@@ -2805,7 +2822,12 @@ var MEAL_IMAGES = {
     }
     if(records.length){
       L.push("유하 기록");
-      records.slice().sort(cmpDate).forEach(r => L.push("· " + r.date + "  " + num(r.height) + "cm" + (r.weight !== null ? " / " + num(r.weight) + "kg" : "")));
+      records.slice().sort(cmpDate).forEach(r => {
+        const bits = [];
+        if(r.height !== null) bits.push(num(r.height) + "cm");
+        if(r.weight !== null) bits.push(num(r.weight) + "kg");
+        L.push("· " + r.date + "  " + (bits.join(" / ") || "—"));
+      });
     }else{
       L.push("유하 기록: 아직 없음");
     }
@@ -2942,11 +2964,13 @@ var MEAL_IMAGES = {
     if(!data) throw new Error("유하네 식단 기록 코드가 아니에요.");
 
     const incoming = (Array.isArray(data.growth) ? data.growth : [])
-      .filter(g => g && g.d && isFinite(+g.h))
+      .filter(g => g && g.d)
       .map(g => ({
-        date: String(g.d).slice(0, 10), height: +g.h,
+        date: String(g.d).slice(0, 10),
+        height: (g.h === null || g.h === undefined || g.h === "") ? null : (isFinite(+g.h) ? +g.h : null),
         weight: (g.w === null || g.w === undefined || g.w === "") ? null : (isFinite(+g.w) ? +g.w : null)
-      }));
+      }))
+      .filter(g => g.height !== null || g.weight !== null);
     const memoIn = (Array.isArray(data.memos) ? data.memos : [])
       .filter(m => m && typeof m.d === "string" && (m.t || m.h))
       .map(m => ({
@@ -2965,7 +2989,10 @@ var MEAL_IMAGES = {
     let count = 0;
     incoming.forEach(g => {
       const hit = records.find(r => r.date === g.date);
-      if(hit){ hit.height = g.height; if(g.weight !== null) hit.weight = g.weight; }
+      if(hit){
+        if(g.height !== null) hit.height = g.height;
+        if(g.weight !== null) hit.weight = g.weight;
+      }
       else { records.push({ id: uid(), date: g.date, height: g.height, weight: g.weight }); }
       count++;
     });
