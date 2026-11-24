@@ -440,6 +440,13 @@ var KINDY_MENU_DATA = {
   .cal-day.is-sel .dnum{color:var(--accent-deep)}
   .cal-day.is-sel.is-today .dnum{color:#fff}
   .cal-day .lun{font-size:6.6px;line-height:1.2;color:#C9B6BB;letter-spacing:-.02em}
+  .cal-day .dline{display:flex;align-items:center;justify-content:center;gap:2px;min-height:21px}
+  .duty-tag{
+    font-style:normal;font-size:8.4px;font-weight:700;line-height:1.45;color:#3D5A78;
+    background:#E8EEF6;border:1px solid #D8E2EE;border-radius:4px;padding:0 2px;flex:none;
+  }
+  .cal-day.is-today .duty-tag{background:#fff;border-color:#C7D6E6}
+  .cal-day.is-sel .duty-tag{background:#fff}
   .cal-day .chips{display:flex;flex-direction:column;gap:1px;width:100%;margin-top:1px}
   .chip{
     display:block;width:100%;font-size:7.4px;line-height:1.5;font-weight:600;
@@ -469,6 +476,11 @@ var KINDY_MENU_DATA = {
   .dp-add .ico{width:12px;height:12px;color:var(--accent)}
   .dp-item{display:flex;align-items:flex-start;gap:9px;padding:8px 2px;border-bottom:1px solid #FBF3F5;margin-bottom:2px}
   .dp-emo{font-size:13px;line-height:1.35}
+  .dp-emo.duty-emo,.de-emo.duty-emo{
+    width:19px;height:19px;flex:none;display:grid;place-items:center;border-radius:5px;
+    font-size:9.5px;font-weight:700;font-style:normal;color:#3D5A78;
+    background:#E8EEF6;border:1px solid #D8E2EE;
+  }
   .dp-body{flex:1;min-width:0}
   .dp-lab{font-size:10px;font-weight:600;color:var(--accent-deep)}
   .dp-lab.duty{color:#3D5A78}
@@ -1128,7 +1140,7 @@ var KINDY_MENU_DATA = {
       <div class="cat-row" id="memoCats">
         <button class="cat-chip active" type="button" data-cat="trip"><span>✈️</span>여행</button>
         <button class="cat-chip" type="button" data-cat="family"><span>🎀</span>가족일정</button>
-        <button class="cat-chip" type="button" data-cat="duty"><span>👮‍♂️</span>지석 근무</button>
+        <button class="cat-chip" type="button" data-cat="duty">지석 근무</button>
         <button class="cat-chip" type="button" data-cat="etc"><span>📌</span>외출·기타</button>
       </div>
       <div class="cat-row" id="dutyShifts" style="display:none">
@@ -1280,10 +1292,15 @@ var MEAL_IMAGES = {
   const MEMO_CATS = {
     trip: { icon: "✈️", label: "여행" },
     family: { icon: "🎀", label: "가족일정" },
-    duty: { icon: "👮‍♂️", label: "지석 근무" },
+    duty: { icon: "", label: "지석 근무" },
     etc: { icon: "📌", label: "외출·기타" }
   };
   const DUTY_SHIFTS = ["주간", "야간", "비번", "휴무", "출동"];
+  function dutyLetter(m){
+    const s = String((m && (m.shift || m.short || m.text)) || "");
+    const tail = s.split("·").pop().trim();
+    return (tail || s).slice(0, 1) || "근";
+  }
 
   /* ── 공휴일 ── */
   const HOLI = (typeof KR_HOLIDAYS !== "undefined" && KR_HOLIDAYS) ? KR_HOLIDAYS : {};
@@ -1962,10 +1979,15 @@ var MEAL_IMAGES = {
       if(iso === selDate) cls += " is-sel";
 
       const chips = [];
+      const dutyTags = [];
       if(holi) chips.push(`<span class="chip holi">${esc(holi)}</span>`);
       list.forEach(m => {
         const cat = MEMO_CATS[m.cat] || MEMO_CATS.etc;
-        chips.push(`<span class="chip ${m.cat === "duty" ? "duty" : "memo"}">${cat.icon} ${esc(m.short || m.text)}</span>`);
+        if(m.cat === "duty"){
+          dutyTags.push(`<em class="duty-tag">${esc(dutyLetter(m))}</em>`);
+          return;
+        }
+        chips.push(`<span class="chip memo">${cat.icon} ${esc(m.short || m.text)}</span>`);
       });
 
       const aria = calM + "월 " + d + "일 " + W[dow] + "요일"
@@ -1974,7 +1996,7 @@ var MEAL_IMAGES = {
         + (list.length ? " " + list.map(m => m.text).join(", ") : "");
 
       cells += `<div class="cal-cell"><button class="${cls}" type="button" data-date="${iso}" aria-label="${esc(aria)}"${iso === selDate ? " aria-pressed=\"true\"" : ""}>`
-        + `<span class="dnum">${d}</span>`
+        + `<span class="dline"><span class="dnum">${d}</span>${dutyTags.slice(0, 2).join("")}</span>`
         + (lun ? `<span class="lun">${lun.m}.${lun.d}</span>` : "")
         + (chips.length ? `<span class="chips">${chips.slice(0, 3).join("")}</span>` : "")
         + `</button></div>`;
@@ -2005,7 +2027,7 @@ var MEAL_IMAGES = {
       const cat = MEMO_CATS[m.cat] || MEMO_CATS.etc;
       const meta = [m.time, m.place].filter(Boolean).map(esc).join(" · ");
       rows.push(`<div class="dp-item">
-        <span class="dp-emo">${cat.icon}</span>
+        ${m.cat === "duty" ? `<span class="dp-emo duty-emo">${esc(dutyLetter(m))}</span>` : `<span class="dp-emo">${cat.icon}</span>`}
         <div class="dp-body"><div class="dp-lab${m.cat === "duty" ? " duty" : ""}">${esc(cat.label)}</div><div class="dp-txt">${esc(m.text)}</div>${meta ? `<div class="dp-meta">${meta}</div>` : ""}</div>
         <button class="dp-mini" type="button" data-memo="edit" data-entry="${esc(m.id)}">수정</button>
       </div>`);
@@ -2079,7 +2101,7 @@ var MEAL_IMAGES = {
       const cat = MEMO_CATS[m.cat] || MEMO_CATS.etc;
       const on = m.id === editEntryId;
       return `<div class="de-item${on ? " editing" : ""}">
-        <span class="de-emo">${cat.icon}</span>
+        ${m.cat === "duty" ? `<span class="de-emo duty-emo">${esc(dutyLetter(m))}</span>` : `<span class="de-emo">${cat.icon}</span>`}
         <div class="de-body"><div class="de-lab${m.cat === "duty" ? " duty" : ""}">${esc(cat.label)}</div><div class="de-txt">${esc(m.text)}</div></div>
         <button class="dp-mini" type="button" data-edit="${esc(m.id)}">수정</button>
         <button class="de-del" type="button" data-del="${esc(m.id)}" aria-label="${esc(m.text)} 삭제"><svg class="ico"><use href="#i-close"/></svg></button>
