@@ -307,8 +307,9 @@ var KINDY_MENU_DATA = {
   .hero h1.logo{margin:0;font-size:21px;font-weight:700;letter-spacing:.14em;color:#5E4A50;line-height:1.1}
   .hero h1.logo .logo-dot{color:#D98FA1;letter-spacing:0}
   .hero .sub{margin:5px 0 0;font-size:10.5px;color:#B2959D;letter-spacing:.02em}
-  .hero-meta{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:6px;margin-top:10px;font-size:10.8px;color:#A98F97}
-  .hero-meta .sp{color:#DCBCC5}
+  .dp-meta{margin-top:3px;font-size:10.8px;color:var(--ink-3);line-height:1.45}
+  .week-meta{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 2px 9px;font-size:10.9px;color:#A98F97;line-height:1.5}
+  .week-meta .sp{color:#DCBCC5}
   .hero-actions{position:absolute;right:16px;top:18px;display:flex;gap:6px;margin:0}
   .hero-btn{
     width:30px;height:30px;font-size:11.5px;font-weight:500;color:var(--ink-2);background:rgba(255,255,255,.82);
@@ -880,19 +881,14 @@ var KINDY_MENU_DATA = {
         <button class="tab active" data-view="cal" type="button">
           <svg class="ico"><use href="#i-calendar"/></svg><span>달력</span>
         </button>
-        <button class="tab" data-view="meal" type="button">
-          <svg class="ico"><use href="#i-bowl"/></svg><span>식단·장보기</span>
-        </button>
         <button class="tab" data-view="grow" type="button">
           <svg class="ico"><use href="#i-chart"/></svg><span>성장표</span>
         </button>
+        <button class="tab" data-view="meal" type="button">
+          <svg class="ico"><use href="#i-bowl"/></svg><span>식단·장보기</span>
+        </button>
       </div>
     </nav>
-    <div class="hero-meta">
-      <span id="heroWeek">11월 30일 ~ 12월 4일</span>
-      <span class="sp">·</span>
-      <span id="heroFamily">어른 2명 + 5살 유하</span>
-    </div>
   </header>
 
   <!-- 달력 (첫 화면 · 유하네 메인) -->
@@ -970,6 +966,11 @@ var KINDY_MENU_DATA = {
     </div>
 
     <div id="mealSection" class="jump-target">
+      <p class="week-meta" id="weekMeta">
+        <span id="heroWeek">11월 30일 ~ 12월 4일</span>
+        <span class="sp">·</span>
+        <span id="heroFamily">어른 2명 + 5살 유하</span>
+      </p>
       <div class="section-head">
         <h2>이번 주 저녁 식단</h2>
         <span class="cap" id="weekCap">월 ~ 금 · 5일</span>
