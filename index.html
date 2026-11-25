@@ -3183,6 +3183,7 @@ var MEAL_IMAGES = {
   let openGroups = {};
   let editField = null;   // {id, kind:"name"|"amount"} — 표에서 누른 칸만 입력칸으로
   let editBlurTimer = null;
+  let editSwitchAt = 0;   // 칸을 막 바꾼 직후의 focusout은 무시
   let exWho = "common";
 
   const thisMonth = () => todayIso().slice(0, 7);
@@ -3317,6 +3318,12 @@ var MEAL_IMAGES = {
       saveBudget(); renderBudget();
     }
   });
+  function openEdit(id, kind){
+    editField = { id: id, kind: kind };
+    editSwitchAt = Date.now();
+    renderFixGroups();
+    focusEdit();
+  }
   function focusEdit(){
     if(!editField) return;
     const sel = editField.kind === "name"
@@ -3332,19 +3339,9 @@ var MEAL_IMAGES = {
     const t = e.target;
     if(!t || typeof t.closest !== "function") return;
     const nameBtn = t.closest("button[data-iname-edit]");
-    if(nameBtn){
-      editField = { id: nameBtn.getAttribute("data-iname-edit"), kind: "name" };
-      renderFixGroups();
-      focusEdit();
-      return;
-    }
+    if(nameBtn){ openEdit(nameBtn.getAttribute("data-iname-edit"), "name"); return; }
     const amtBtn = t.closest("button[data-iamt-edit]");
-    if(amtBtn){
-      editField = { id: amtBtn.getAttribute("data-iamt-edit"), kind: "amount" };
-      renderFixGroups();
-      focusEdit();
-      return;
-    }
+    if(amtBtn){ openEdit(amtBtn.getAttribute("data-iamt-edit"), "amount"); return; }
     const del = t.closest("button[data-idel]");
     if(del){
       const g = groupOf(del.getAttribute("data-g"));
@@ -3364,9 +3361,8 @@ var MEAL_IMAGES = {
       const nid = "i" + uid();
       g.items.push({ id: nid, name: "", amount: 0 });
       openGroups[gid] = true;
-      editField = { id: nid, kind: "name" };
-      saveBudget(); renderBudget();
-      focusEdit();
+      saveBudget();
+      openEdit(nid, "name");
       toast("항목을 추가했어요. 이름과 금액을 적어 주세요");
       return;
     }
@@ -3384,6 +3380,7 @@ var MEAL_IMAGES = {
     editBlurTimer = setTimeout(() => {
       editBlurTimer = null;
       if(editField !== cur) return;
+      if(Date.now() - editSwitchAt < 400) return;
       editField = null;
       renderFixGroups();
     }, 180);
