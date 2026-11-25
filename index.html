@@ -662,11 +662,21 @@ var KINDY_MENU_DATA = {
   .fix-group.open .fix-body[hidden]{display:block}
   .fix-item{display:flex;align-items:center;gap:5px;padding:5px 0;border-bottom:1px solid #FCF6F7}
   .fix-item:last-of-type{border-bottom:0}
-  .fix-name-in{
-    flex:1;min-width:0;border:0;background:none;font-family:inherit;font-size:16px;color:var(--ink);
-    padding:4px 0;outline:none;border-radius:7px;
+  .fix-name-btn{
+    flex:1;min-width:0;text-align:left;border:0;background:none;font-family:inherit;font-size:12px;
+    line-height:1.45;color:var(--ink);padding:7px 0;cursor:text;border-radius:6px;
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
   }
-  .fix-name-in:focus{background:#fff;box-shadow:0 0 0 1px var(--pink-200);padding:4px 7px}
+  .fix-name-btn:active{color:var(--accent-deep)}
+  .fix-amt-btn{
+    flex:none;border:0;background:none;font-family:inherit;font-size:12.5px;font-weight:600;
+    color:var(--ink-2);padding:7px 2px;cursor:text;font-variant-numeric:tabular-nums;border-radius:6px;
+  }
+  .fix-amt-btn:active{color:var(--accent-deep)}
+  .fix-name-in{
+    flex:1;min-width:0;border:0;background:#fff;box-shadow:0 0 0 1px var(--pink-200);font-family:inherit;
+    font-size:16px;color:var(--ink);padding:4px 7px;outline:none;border-radius:7px;
+  }
   .fix-amt{display:inline-flex;align-items:center;gap:2px;flex:none}
   .fix-amt input{
     width:88px;font-family:inherit;font-size:16px;font-weight:600;text-align:right;color:var(--ink);
@@ -3171,6 +3181,8 @@ var MEAL_IMAGES = {
   let budget = cleanBudget(store.get(BUDGET_KEY, null));
   const saveBudget = () => store.set(BUDGET_KEY, budget);
   let openGroups = {};
+  let editField = null;   // {id, kind:"name"|"amount"} — 표에서 누른 칸만 입력칸으로
+  let editBlurTimer = null;
   let exWho = "common";
 
   const thisMonth = () => todayIso().slice(0, 7);
@@ -3188,12 +3200,21 @@ var MEAL_IMAGES = {
     $("#fixGroups").innerHTML = budget.groups.map(g => {
       const sum = g.items.reduce((a, it) => a + it.amount, 0);
       const open = !!openGroups[g.id];
-      const items = g.items.map(it => `
+      const items = g.items.map(it => {
+        const onName = !!(editField && editField.id === it.id && editField.kind === "name");
+        const onAmt = !!(editField && editField.id === it.id && editField.kind === "amount");
+        const nameCell = onName
+          ? `<input class="fix-name-in" type="text" maxlength="30" value="${esc(it.name)}" placeholder="항목 이름" data-iname="${esc(it.id)}" data-g="${esc(g.id)}" aria-label="항목 이름">`
+          : `<button class="fix-name-btn" type="button" data-iname-edit="${esc(it.id)}" data-g="${esc(g.id)}" aria-label="${esc(it.name)} 이름 고치기">${esc(it.name || "새 항목")}</button>`;
+        const amtCell = onAmt
+          ? `<span class="fix-amt"><input type="number" inputmode="numeric" min="0" step="100" value="${it.amount}" data-iamt="${esc(it.id)}" data-g="${esc(g.id)}" aria-label="${esc(it.name)} 금액"><i>원</i></span>`
+          : `<button class="fix-amt-btn" type="button" data-iamt-edit="${esc(it.id)}" data-g="${esc(g.id)}" aria-label="${esc(it.name)} 금액 고치기">${won(it.amount)}</button>`;
+        return `
         <div class="fix-item">
-          <input class="fix-name-in" type="text" maxlength="30" value="${esc(it.name)}" data-iname="${esc(it.id)}" data-g="${esc(g.id)}" aria-label="${esc(it.name)} 이름">
-          <span class="fix-amt"><input type="number" inputmode="numeric" min="0" step="100" value="${it.amount}" data-iamt="${esc(it.id)}" data-g="${esc(g.id)}" aria-label="${esc(it.name)} 금액"><i>원</i></span>
+          ${nameCell}${amtCell}
           <button class="fix-del" type="button" data-idel="${esc(it.id)}" data-g="${esc(g.id)}" aria-label="${esc(it.name)} 삭제">×</button>
-        </div>`).join("");
+        </div>`;
+      }).join("");
       return `<article class="fix-group${open ? " open" : ""}">
         <header class="fix-head" data-gtoggle="${esc(g.id)}" role="button" tabindex="0" aria-expanded="${open ? "true" : "false"}">
           <span class="fix-name">${esc(g.name)}</span>
@@ -3286,17 +3307,44 @@ var MEAL_IMAGES = {
       const it = g.items.filter(x => x.id === nid)[0];
       if(!it) return;
       it.name = String(el.value === null || el.value === undefined ? "" : el.value).trim().slice(0, 30) || "항목";
+      editField = null;
       saveBudget(); renderBudget();
     }else if(aid){
       const it = g.items.filter(x => x.id === aid)[0];
       if(!it) return;
       it.amount = budMoney(el.value);
+      editField = null;
       saveBudget(); renderBudget();
     }
   });
+  function focusEdit(){
+    if(!editField) return;
+    const sel = editField.kind === "name"
+      ? '[data-iname="' + editField.id + '"]'
+      : '[data-iamt="' + editField.id + '"]';
+    try{
+      const el = document.querySelector(sel);
+      if(el && el.focus) el.focus();
+      if(el && el.select) el.select();
+    }catch(e){}
+  }
   $("#fixGroups").addEventListener("click", e => {
     const t = e.target;
     if(!t || typeof t.closest !== "function") return;
+    const nameBtn = t.closest("button[data-iname-edit]");
+    if(nameBtn){
+      editField = { id: nameBtn.getAttribute("data-iname-edit"), kind: "name" };
+      renderFixGroups();
+      focusEdit();
+      return;
+    }
+    const amtBtn = t.closest("button[data-iamt-edit]");
+    if(amtBtn){
+      editField = { id: amtBtn.getAttribute("data-iamt-edit"), kind: "amount" };
+      renderFixGroups();
+      focusEdit();
+      return;
+    }
     const del = t.closest("button[data-idel]");
     if(del){
       const g = groupOf(del.getAttribute("data-g"));
@@ -3314,14 +3362,11 @@ var MEAL_IMAGES = {
       const g = groupOf(gid);
       if(!g) return;
       const nid = "i" + uid();
-      g.items.push({ id: nid, name: "새 항목", amount: 0 });
+      g.items.push({ id: nid, name: "", amount: 0 });
       openGroups[gid] = true;
+      editField = { id: nid, kind: "name" };
       saveBudget(); renderBudget();
-      try{
-        const inp = document.querySelector('[data-iname="' + nid + '"]');
-        if(inp && inp.focus) inp.focus();
-        if(inp && inp.select) inp.select();
-      }catch(err){}
+      focusEdit();
       toast("항목을 추가했어요. 이름과 금액을 적어 주세요");
       return;
     }
@@ -3331,6 +3376,17 @@ var MEAL_IMAGES = {
       openGroups[id] = !openGroups[id];
       renderFixGroups();
     }
+  });
+  $("#fixGroups").addEventListener("focusout", () => {
+    if(!editField) return;
+    const cur = editField;
+    if(editBlurTimer) clearTimeout(editBlurTimer);
+    editBlurTimer = setTimeout(() => {
+      editBlurTimer = null;
+      if(editField !== cur) return;
+      editField = null;
+      renderFixGroups();
+    }, 180);
   });
   $("#fixToggleAll").addEventListener("click", () => {
     const anyClosed = budget.groups.some(g => !openGroups[g.id]);
