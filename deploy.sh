@@ -8,6 +8,19 @@ REPO="${REPO:-yuhane-meal-planner}"
 URL="https://${OWNER}.github.io/${REPO}/"
 cd "$(dirname "$0")"
 
+SRC="../../downloads/meal-planner.html"
+echo "0) 빌드 결과 반영"
+if [ -f "$SRC" ]; then
+  if cmp -s "$SRC" index.html; then
+    echo "   index.html 이미 최신"
+  else
+    cp "$SRC" index.html && echo "   downloads/meal-planner.html → index.html ($(wc -c < index.html) bytes)"
+  fi
+else
+  echo "   $SRC 없음 → python3 meal-planner/build.py 를 먼저 실행해 주세요." >&2
+  exit 2
+fi
+
 echo "1) 저장소 확인"
 if ! gh api "repos/${OWNER}/${REPO}" --jq '.full_name + " private=" + (.private|tostring)' 2>/dev/null; then
   echo "   저장소 없음 → github.com/new 에서 ${REPO} (Public) 를 먼저 만들어 주세요."

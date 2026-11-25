@@ -1305,6 +1305,7 @@ var MEAL_IMAGES = {
   const BRAND = DATA.brand || DATA.appName;
   const SHOP_KEY = "yuhane-meal-shopping-" + DATA.weekId;
   const MEMO_KEY = "yuhane-cal-memos-v1";
+  const DUTY_KEY = "yuhane-duty-v1";
   const GROW_KEY = "yuhane-growth-v1";
 
   const $ = (s, r) => (r || document).querySelector(s);
@@ -1356,6 +1357,20 @@ var MEAL_IMAGES = {
     etc: { icon: "📌", label: "외출·기타" }
   };
   const DUTY_SHIFTS = ["주간", "야간", "비번", "휴무", "출동"];
+  /* 근무 코드: 클라우드에는 한 글자(주·야·비·휴·출)로 저장하고 화면에서는 두 글자 이름으로 보여 줍니다 */
+  const DUTY_CODES = { "주": "주간", "야": "야간", "비": "비번", "휴": "휴무", "출": "출동" };
+  function dutyCode(v){
+    const s = String(v === null || v === undefined ? "" : v).trim();
+    if(!s) return "";
+    if(DUTY_CODES[s]) return s;
+    if(DUTY_SHIFTS.indexOf(s) > -1) return s.slice(0, 1);
+    const head = s.slice(0, 1);
+    return DUTY_CODES[head] ? head : "";
+  }
+  function dutyName(code){
+    const c = dutyCode(code);
+    return DUTY_CODES[c] || String(code === null || code === undefined ? "" : code).trim().slice(0, 4);
+  }
   function dutyLetter(m){
     const s = String((m && (m.shift || m.short || m.text)) || "");
     const tail = s.split("·").pop().trim();
@@ -1908,12 +1923,59 @@ var MEAL_IMAGES = {
     memos = out;
   })();
 
-  /* 그 날 일정 목록: 기본 내장 + 저장된 항목(수정·추가) */
+  /* ── 지석 근무표 (클라우드가 원본) ──────────────────
+     duty[iso] = "주" | "야" | "비" | "휴" | "출"
+     · Firebase의 duty 노드와 실시간으로 맞춰, 앱에서 넣든 CLI(meal-planner/set_duty.py)로 넣든
+       새로고침·빌드·배포 없이 모든 기기 달력에 바로 붙습니다.
+     · 일정(memos)과 다른 칸에 두어 앱에서 고친 메모·성장표·식단을 건드리지 않습니다.
+     · 클라우드 근무가 없는 날은 내장 근무표(d-duty-*)와 예전에 앱에서 넣은 근무를 그대로 보여 줍니다. */
+  const DUTY_ISO_RE = /^\d{4}-\d{2}-\d{2}$/;
+  function cleanDuty(raw){
+    const src = (raw && typeof raw === "object" && !Array.isArray(raw)) ? raw : {};
+    const out = {};
+    Object.keys(src).forEach(iso => {
+      if(!DUTY_ISO_RE.test(iso)) return;
+      const c = dutyCode(src[iso]);
+      if(c) out[iso] = c;
+    });
+    return out;
+  }
+  let dutyMap = cleanDuty(store.get(DUTY_KEY, null));
+
+  /* 그 날 근무 한 건: ① 클라우드 근무표 ② 내장 근무표(앱에서 고친 값·지운 표시 반영) ③ 앱에서 직접 넣은 근무 */
+  function dutyOf(iso){
+    const code = dutyMap[iso];
+    if(code){
+      const name = dutyName(code);
+      return { id: "duty-" + iso, cat: "duty", text: "지석 근무 · " + name, short: name, shift: name, icon: "", time: "", place: "", hidden: false };
+    }
+    const stored = Array.isArray(memos[iso]) ? memos[iso] : [];
+    const defs = (DEF_BY_DATE[iso] || []).filter(d => d.cat === "duty");
+    for(let i = 0; i < defs.length; i++){
+      const d = defs[i];
+      const s = stored.filter(e => e.id === d.id)[0];
+      if(s && s.hidden) continue;
+      return {
+        id: d.id, cat: "duty",
+        text: (s && s.text) || d.text, short: (s && s.short) || d.short || "",
+        shift: (s && s.shift) || d.shift || "", icon: "", time: (s && s.time) || "", place: (s && s.place) || "", hidden: false
+      };
+    }
+    const extra = stored.filter(e => e && e.cat === "duty" && !e.hidden && e.text)[0];
+    if(extra) return {
+      id: extra.id, cat: "duty", text: extra.text, short: extra.short || "",
+      shift: extra.shift || "", icon: extra.icon || "", time: extra.time || "", place: extra.place || "", hidden: false
+    };
+    return null;
+  }
+
+  /* 그 날 일정 목록: 기본 내장 + 저장된 항목(수정·추가) · 근무는 dutyOf에서 한 건만 붙임 */
   function entriesOf(iso){
     const stored = Array.isArray(memos[iso]) ? memos[iso] : [];
     const defs = DEF_BY_DATE[iso] || [];
     const out = [];
     defs.forEach(d => {
+      if(d.cat === "duty") return;               // 근무는 아래 dutyOf에서 중복 없이 한 번만
       const s = stored.filter(e => e.id === d.id)[0];
       if(s && s.hidden) return;
       out.push(s ? {
@@ -1924,9 +1986,12 @@ var MEAL_IMAGES = {
     });
     stored.forEach(e => {
       if(!e || e.hidden || !e.text) return;
+      if(e.cat === "duty") return;               // 근무는 아래 dutyOf에서 중복 없이 한 번만
       if(defs.some(d => d.id === e.id)) return;
       out.push(e);
     });
+    const duty = dutyOf(iso);
+    if(duty) out.unshift(duty);
     return out;
   }
   const memoOf = iso => entriesOf(iso)[0] || null;
@@ -1947,6 +2012,38 @@ var MEAL_IMAGES = {
     const tomb = { id: id, cat: "etc", text: "", hidden: true };
     if(i > -1) list[i] = tomb; else list.push(tomb);
     memos[iso] = list;
+  }
+
+  /* 근무표 쓰기·지우기: 클라우드 duty 노드만 바꿔 다른 기록은 그대로 둡니다 */
+  function dutyWrite(iso, code){
+    const c = dutyCode(code);
+    if(!c || !DUTY_ISO_RE.test(String(iso))) return false;
+    if(dutyMap[iso] === c) return false;
+    dutyMap[iso] = c;
+    store.set(DUTY_KEY, dutyMap);
+    return true;
+  }
+  function dutyClear(iso){
+    const ids = [];
+    (DEF_BY_DATE[iso] || []).forEach(d => { if(d.cat === "duty") ids.push(d.id); });
+    (Array.isArray(memos[iso]) ? memos[iso] : []).forEach(e => { if(e && e.cat === "duty") ids.push(e.id); });
+    let touched = false;
+    ids.forEach(id => { hideEntry(iso, id); touched = true; });
+    if(touched) saveMemos();
+    if(Object.prototype.hasOwnProperty.call(dutyMap, iso)){
+      delete dutyMap[iso];
+      store.set(DUTY_KEY, dutyMap);
+      touched = true;
+    }
+    return touched;
+  }
+  /* 목록에서 지울 때: 근무는 근무표(duty)에서, 나머지는 일정(memos)에서 지웁니다 */
+  function removeEntry(iso, id){
+    const e = entryById(iso, id);
+    if(e && e.cat === "duty") return dutyClear(iso);
+    hideEntry(iso, id);
+    saveMemos();
+    return true;
   }
 
   /* ── 유하 성장 기록 ─────────────────────────────────
@@ -2409,15 +2506,25 @@ var MEAL_IMAGES = {
     const id = editEntryId || ("m-" + uid());
     const isDuty = memoCat === "duty";
     const shift = isDuty ? (memoShift || String(text).split("·")[1] || "주간").trim() : "";
+    if(isDuty){
+      /* 근무는 일정이 아니라 근무표(duty)에 넣어 모든 기기에 바로 반영합니다 */
+      dutyWrite(openDate, dutyCode(shift) || dutyCode(text) || "주");
+      editEntryId = "duty-" + openDate;
+      renderCalendar();
+      renderWeek();
+      startEdit(openDate, editEntryId);
+      toast("근무표를 저장했어요");
+      return;
+    }
     putEntry(openDate, {
       id: id,
       cat: memoCat,
       text: text,
-      short: isDuty ? shift : (prev.short && prev.text === text ? prev.short : ""),
+      short: (prev.short && prev.text === text ? prev.short : ""),
       icon: prev.icon || "",
       time: prev.time || "",
       place: prev.place || "",
-      shift: shift,
+      shift: "",
       hidden: false
     });
     saveMemos();
@@ -2425,7 +2532,7 @@ var MEAL_IMAGES = {
     renderCalendar();
     renderWeek();
     startEdit(openDate, id);
-    toast(isDuty ? "근무표를 저장했어요" : "일정을 저장했어요");
+    toast("일정을 저장했어요");
   }
 
   function deleteMemo(){
@@ -2433,8 +2540,7 @@ var MEAL_IMAGES = {
     const e = entryById(openDate, editEntryId);
     if(!e) return;
     if(!window.confirm("이 일정을 지울까요?")) return;
-    hideEntry(openDate, editEntryId);
-    saveMemos();
+    removeEntry(openDate, editEntryId);
     editEntryId = null;
     renderCalendar();
     renderWeek();
@@ -2472,8 +2578,7 @@ var MEAL_IMAGES = {
     if(del){
       const id = del.getAttribute("data-del");
       if(!window.confirm("이 일정을 지울까요?")) return;
-      hideEntry(openDate, id);
-      saveMemos();
+      removeEntry(openDate, id);
       editEntryId = null;
       renderCalendar();
       renderWeek();
@@ -2836,7 +2941,7 @@ var MEAL_IMAGES = {
     L.push("");
     L.push("장보기");
     shopCats.forEach(c => L.push("· " + c.name + ": " + c.items.map(it => it.text).join(", ")));
-    const memoDates = Array.from(new Set(DEFAULT_ENTRIES.map(e => e.date).concat(Object.keys(memos)))).sort();
+    const memoDates = Array.from(new Set(DEFAULT_ENTRIES.map(e => e.date).concat(Object.keys(memos)).concat(Object.keys(dutyMap)))).sort();
     const memoLines = [];
     memoDates.forEach(dt => entriesOf(dt).forEach(m => {
       const cat = MEMO_CATS[m.cat] || MEMO_CATS.etc;
@@ -2892,7 +2997,7 @@ var MEAL_IMAGES = {
   };
 
   function makeCode(){
-    const memoDates = Array.from(new Set(DEFAULT_ENTRIES.map(e => e.date).concat(Object.keys(memos)))).sort();
+    const memoDates = Array.from(new Set(DEFAULT_ENTRIES.map(e => e.date).concat(Object.keys(memos)).concat(Object.keys(dutyMap)))).sort();
     const memoArr = [];
     memoDates.forEach(dt => {
       entriesOf(dt).forEach(m => memoArr.push({
@@ -2909,6 +3014,7 @@ var MEAL_IMAGES = {
       week: DATA.weekId,
       growth: records.slice().sort(cmpDate).map(r => ({ d: r.date, h: r.height, w: r.weight })),
       memos: memoArr,
+      duty: dutyMap,
       plan: plan.slice(),
       kids: kidItems.map(k => ({ t: k.text, d: !!k.done })),
       shopOn: checked.slice()
@@ -3016,9 +3122,11 @@ var MEAL_IMAGES = {
     const kidIn = (Array.isArray(data.kids) ? data.kids : [])
       .filter(k => k && typeof k.t === "string" && k.t);
     const planIn = (Array.isArray(data.plan) && data.plan.some(k => MEAL_BY_KEY[k])) ? data.plan : null;
+    const dutyIn = (data.duty && typeof data.duty === "object" && !Array.isArray(data.duty)) ? cleanDuty(data.duty) : {};
+    const dutyCount = Object.keys(dutyIn).length;
 
-    if(!incoming.length && !memoIn.length && !kidIn.length && !planIn) throw new Error("불러올 기록이 없어요.");
-    if(!window.confirm("기록 " + incoming.length + "개, 메모 " + memoIn.length + "개, 유치원 챙길 것 " + kidIn.length + "개를 불러올게요. 같은 날짜 기록은 새 값으로 바뀌어요.")) return 0;
+    if(!incoming.length && !memoIn.length && !kidIn.length && !planIn && !dutyCount) throw new Error("불러올 기록이 없어요.");
+    if(!window.confirm("기록 " + incoming.length + "개, 메모 " + memoIn.length + "개, 근무 " + dutyCount + "일, 유치원 챙길 것 " + kidIn.length + "개를 불러올게요. 같은 날짜 기록은 새 값으로 바뀌어요.")) return 0;
 
     let count = 0;
     incoming.forEach(g => {
@@ -3050,6 +3158,11 @@ var MEAL_IMAGES = {
       applyPlan();
       buildShopping();
       count++;
+    }
+    if(dutyCount){
+      Object.keys(dutyIn).forEach(iso => { dutyMap[iso] = dutyIn[iso]; });
+      store.set(DUTY_KEY, dutyMap);
+      count += dutyCount;
     }
     if(kidIn.length){
       kidItems = kidIn.map((k, i) => ({ id: "k" + i + "-" + uid(), text: String(k.t).slice(0, 60), done: !!k.d }));
@@ -3413,6 +3526,7 @@ var MEAL_IMAGES = {
 
   const SYNC_SECTIONS = [
     { key: "memos", ls: MEMO_KEY, empty: () => ({}), label: "일정", read: () => memos, write: v => { memos = cleanMemos(v); store.set(MEMO_KEY, memos); } },
+    { key: "duty", ls: DUTY_KEY, empty: () => ({}), label: "지석 근무", read: () => dutyMap, write: v => { dutyMap = cleanDuty(v); store.set(DUTY_KEY, dutyMap); } },
     { key: "kids", ls: KID_KEY, empty: () => [], label: "유치원 챙길 것", read: () => kidItems, write: v => { kidItems = cleanKids(v); store.set(KID_KEY, kidItems); } },
     { key: "academy", ls: ACAD_KEY, empty: () => [], label: "유하 학원", read: () => acadItems, write: v => { acadItems = cleanAcad(v); store.set(ACAD_KEY, acadItems); } },
     { key: "plan", ls: PLAN_KEY, empty: () => [], label: "이번 주 식단", read: () => plan, write: v => { plan = SLOT_IDS.map((def, i) => (Array.isArray(v) && MEAL_BY_KEY[v[i]]) ? v[i] : def); store.set(PLAN_KEY, plan); applyPlan(); buildShopping(); } },
