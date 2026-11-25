@@ -29,8 +29,8 @@ elif [ "$COMMITS" = "1" ]; then
   # 저장소 만들 때 생긴 README 한 개뿐 → 우리 내용으로 대체
   git push -u origin main --force || { echo "   강제 푸시 실패"; exit 3; }
 else
-  echo "   원격에 커밋이 여러 개 있어 덮어쓰지 않았습니다. 내용을 확인해 주세요."
-  exit 4
+  # 이미 여러 번 배포된 저장소 → 새 커밋만 이어서 올림(덮어쓰지 않음)
+  git push -u origin main || { echo "   푸시 실패(원격과 갈라졌는지 확인해 주세요)"; exit 3; }
 fi
 
 echo "4) Pages 활성화"
