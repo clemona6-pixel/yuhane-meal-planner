@@ -3353,7 +3353,7 @@ var MEAL_IMAGES = {
       const it = g.items.filter(x => x.id === id)[0];
       g.items = g.items.filter(x => x.id !== id);
       saveBudget(); renderBudget();
-      toast((it ? it.name : "항목") + "을 뺐어요");
+      toast((it && it.name ? it.name + " " : "항목 ") + "지웠어요");
       return;
     }
     const add = t.closest("button[data-gadd]");
