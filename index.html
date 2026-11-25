@@ -3261,7 +3261,10 @@ var MEAL_IMAGES = {
     if(!living) msg.textContent = "목표 예산을 정하면 남은 예산을 계산해 드려요.";
     else if(remain < 0) msg.textContent = "예산보다 " + won(-remain) + " 더 썼어요. 남은 기간은 조금 줄여 볼까요?";
     else if(!spent) msg.textContent = "아직 기록이 없어요. 쓴 금액을 적으면 남은 예산이 바로 계산돼요.";
-    else msg.textContent = "예산의 " + Math.round(spent / living * 100) + "%를 썼어요.";
+    else{
+      const pctUsed = Math.round(spent / living * 100);
+      msg.textContent = pctUsed < 1 ? "예산의 1%도 안 되게 썼어요." : "예산의 " + pctUsed + "%를 썼어요.";
+    }
 
     $("#exCount").textContent = list.length ? list.length + "건 · " + won(spent) : "";
     $("#exList").innerHTML = list.map(e => `
